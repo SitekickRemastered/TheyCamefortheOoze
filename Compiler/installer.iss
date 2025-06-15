@@ -36,6 +36,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
 
 [Files]
+; Dependency
+Source: "Shockwave_Installer_Full_10.3.0.24.exe"; DestDir: "{tmp}\Shockwave"; Flags: recursesubdirs createallsubdirs deleteafterinstall
+
 ; Main executable and loose files
 Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\Sitekick - They Came for the Ooze.ini"; DestDir: "{app}"; Flags: ignoreversion
@@ -57,5 +60,5 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
+Filename: "{tmp}\Shockwave\Shockwave_Installer_Full_10.3.0.24.exe"; Parameters: ""; Flags: waituntilterminated
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
