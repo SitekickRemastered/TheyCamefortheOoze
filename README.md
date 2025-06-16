@@ -1,4 +1,4 @@
-# TheyCamefortheOoze
+# Sitekick: They Came for the Ooze
 ![Box Art](https://raw.githubusercontent.com/SitekickRemastered/TheyCamefortheOoze/refs/heads/main/README/game_logo.png)
 
 # Download
