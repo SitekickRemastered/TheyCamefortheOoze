@@ -43,7 +43,7 @@ Source: "Shockwave_Installer_Full_10.3.0.24.exe"; DestDir: "{tmp}\Shockwave"; Fl
 Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\Sitekick - They Came for the Ooze.ini"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\README.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\Sitekick Ooze253.dxr"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\Sitekick - They Came for the Ooze.dxr"; DestDir: "{app}"; Flags: ignoreversion
 
 ; Preserved subfolders
 Source: "C:\Users\nicho\Documents\GitHub\TheyCamefortheOoze\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
