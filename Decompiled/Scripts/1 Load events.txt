@@ -1,0 +1,62 @@
+property pIntroState, pCurrentMs
+global gParserObject, gCodeMgr, gXMLReady
+
+on keyUp me
+  if gXMLReady = 1 then
+    go("Home")
+  end if
+end
+
+on beginSprite me
+  _global.clearGlobals()
+  gCodeMgr = VOID
+  gCodeMgr = script("gCodeMgr-script").new()
+  gCodeMgr.resetfields()
+  _movie.puppetTempo(20)
+  gXMLReady = 1
+  pIntroState = 0
+  pCurrentMs = _system.milliSeconds
+end
+
+on endSprite me
+end
+
+on parseDone me
+  if voidp(gParserObject.getError()) then
+    put "Successful parse"
+  else
+    put "Parse error:"
+    put "   " & gParserObject.getError()
+    sprite(2).locH = 175
+    sprite(2).locV = 75
+  end if
+end
+
+on formatQuestionList me, questionList
+  tempList = []
+  questionCounter = questionList[1][2].count
+  itemCounter = questionList[1][2][2].count
+  repeat with i = 2 to questionCounter
+    singleQuestionList = [:]
+    repeat with j = 2 to itemCounter
+      case questionList[1][2][i].getPropAt(j) of
+        "questionText":
+          singleQuestionList.addProp(#questionText, questionList[1][2][i][j].getProp("!CHARDATA"))
+        "correct":
+          singleQuestionList.addProp(#correct, questionList[1][2][i][j].getProp("!CHARDATA"))
+        "incorrect":
+          singleQuestionList.addProp(#incorrect, questionList[1][2][i][j].getProp("!CHARDATA"))
+      end case
+    end repeat
+    tempList.append(singleQuestionList)
+  end repeat
+  return tempList
+end
+
+on exitFrame me
+  if _system.milliSeconds > (pCurrentMs + 2500) then
+    go("Intro")
+  else
+    go(the frame)
+  end if
+end

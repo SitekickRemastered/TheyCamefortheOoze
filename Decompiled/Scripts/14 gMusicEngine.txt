@@ -1,0 +1,11 @@
+global gMusicVolume, gCurrentMusic
+
+on gAdminMusic me
+  if (sound(1).status = 0) or (gCurrentMusic <> 0) then
+    sound(1).stop()
+    sound(1).volume = gMusicVolume
+    sound(1).play(member("admin_loop"))
+    sound(1).fadeIn(250)
+    gCurrentMusic = 0
+  end if
+end

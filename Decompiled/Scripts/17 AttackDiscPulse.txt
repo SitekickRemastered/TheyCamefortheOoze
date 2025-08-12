@@ -1,0 +1,27 @@
+property spriteNum, pGrowShrink
+global gState
+
+on beginSprite me
+end
+
+on exitFrame me
+  if (sprite(me.spriteNum).locV > 0) and (gState <> 1) then
+    if pGrowShrink = 0 then
+      sise = sprite(me.spriteNum).width
+      sprite(me.spriteNum).width = sprite(me.spriteNum).width + 1
+      sprite(me.spriteNum).height = sprite(me.spriteNum).width + 1
+    else
+      sise = sprite(me.spriteNum).width
+      sprite(me.spriteNum).width = sprite(me.spriteNum).width - 1
+      sprite(me.spriteNum).height = sprite(me.spriteNum).width - 1
+    end if
+    test1 = sprite(me.spriteNum).width > 40
+    test2 = sprite(me.spriteNum).width < 33
+    if test1 then
+      pGrowShrink = 1
+    end if
+    if test2 then
+      pGrowShrink = 0
+    end if
+  end if
+end

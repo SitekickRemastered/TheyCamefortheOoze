@@ -1,0 +1,13 @@
+global gPlayer
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigPurple")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+  gPlayer[1] = gPlayer[1] - 1
+  if gPlayer[1] = 0 then
+    gPlayer[1] = 4
+  end if
+end

@@ -1,0 +1,65 @@
+property pNetXtra, pURL, pScoreTextMem, pLevelTextMem, pNameTextMem
+global gLastScore1p, gLastLevel1p, gSumbitScore, gSubmitTimeStamp
+
+on new me
+  pURL = "http://www.ytv.com/common/inc/CDROMfunctions/AddNewScore.asp"
+  member("ScoreField").text = string(gLastScore1p)
+  member("LevelField").text = string(gLastLevel1p)
+  pNameTextMem = member("HSnameInput")
+  pScoreTextMem = member("ScoreField")
+  pLevelTextMem = member("LevelField")
+  me.resetfields()
+  return me
+end
+
+on Init me
+  if not _player.netPresent then
+    _player.alert("Sorry, the Network Support Xtras could not be found.")
+  end if
+end
+
+on SubmitScore me
+  url = pURL
+  lscore = string(gLastScore1p)
+  lLevel = string(gLastLevel1p)
+  lname = member("HSnameInput").text
+  case lscore.length > 0 of
+    1:
+      case lLevel.length > 0 of
+        1:
+          case lname.length > 0 of
+            1:
+              pNetXtra = new xtra("netlingo")
+              clearCache()
+              lList = [#campaignID: "1", #UserScore: lscore, #UserLevel: lLevel, #userName: lname]
+              gSumbitScore = postNetText(url, lList)
+              gSubmitTimeStamp = _system.milliSeconds
+              me.resetfields()
+              pNetXtra = VOID
+            0:
+              me.AlertYou()
+          end case
+        0:
+          me.AlertYou()
+      end case
+    0:
+      me.AlertYou()
+  end case
+end
+
+on AlertYou me
+  alert("Error, field missing")
+end
+
+on Uninit me
+  case pNetXtra = VOID of
+    0:
+      pNetXtra = VOID
+  end case
+  me.resetfields()
+end
+
+on resetfields me
+  pScoreTextMem.text = EMPTY
+  pLevelTextMem.text = EMPTY
+end

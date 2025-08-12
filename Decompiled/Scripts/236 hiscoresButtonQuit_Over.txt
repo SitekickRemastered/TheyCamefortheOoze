@@ -1,0 +1,16 @@
+global gHState, gLastScore1p, gLastScoreVS
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("hiscoresButtonQuit_Up")
+end
+
+on mouseUp
+  gHState = 7
+  if gLastScore1p <> 0 then
+    set the member of sprite the currentSpriteNum to member("hiscoresButton2P_Over")
+  else
+    if gLastScoreVS <> 0 then
+      set the member of sprite the currentSpriteNum to member("hiscoresButton1P_Up")
+    end if
+  end if
+end

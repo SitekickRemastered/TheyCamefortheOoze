@@ -1,0 +1,8 @@
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("HomeTutorial")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  go("Tutorial")
+end

@@ -1,0 +1,10 @@
+global gHState
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("hiscoresButtonRematch_Up")
+end
+
+on mouseUp
+  gHState = 6
+  set the member of sprite the currentSpriteNum to member("hiscoresButtonMain_Over")
+end

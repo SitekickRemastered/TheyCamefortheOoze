@@ -1,0 +1,14 @@
+global gState
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("pauseButNorm1")
+end
+
+on mouseUp
+  if gState = 0 then
+    gState = 1
+  else
+    gState = 0
+  end if
+  sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+end

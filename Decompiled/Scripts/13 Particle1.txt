@@ -1,0 +1,32 @@
+property spriteNum, yAccel, pMoving, pLoc, pAngle, pSpeed, pGravity
+
+on beginSprite me
+  yAccel = 0
+  pLoc = sprite(me.spriteNum).loc
+  pAngle = (random(1.57000000000000006 * 100) / 100.0) + 3.92499999999999982
+  pSpeed = random(10) + 5
+  pGravity = (random(100) / 100.0) + 1
+end
+
+on exitFrame me
+  if sprite(me.spriteNum).locV > 0 then
+    pLoc = sprite(me.spriteNum).loc
+    x = pLoc.locH
+    y = pLoc.locV
+    dx = cos(pAngle) * 1.0 * pSpeed
+    dy = sin(pAngle) * 1.0 * pSpeed
+    x = x + dx
+    y = y + dy + yAccel
+    yAccel = yAccel + pGravity
+    if (x < 0) or (x > (the stage).rect.width) or ((y < 0) or (y > (the stage).rect.height)) then
+      sprite(me.spriteNum).loc = point(-100, -100)
+      yAccel = 0
+      pAngle = (random(1.57000000000000006 * 100) / 100.0) + 3.92499999999999982
+      pSpeed = random(10) + 5
+      pGravity = (random(100) / 100.0) + 1
+    else
+      pLoc = point(x, y)
+      sprite(me.spriteNum).loc = pLoc
+    end if
+  end if
+end

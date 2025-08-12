@@ -1,0 +1,14 @@
+global gHState
+
+on mouseEnter
+  if gHState = 0 then
+    set the member of sprite the currentSpriteNum to member("hiscoresButtonLocal_Over")
+    sound(7).playFile(_movie.path & "sound\" & "buttonover2.wav")
+  end if
+end
+
+on mouseUp
+  if gHState <> 0 then
+    sound(7).playFile(_movie.path & "sound\" & "warning.wav")
+  end if
+end

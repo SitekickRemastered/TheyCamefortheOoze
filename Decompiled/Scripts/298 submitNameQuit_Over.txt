@@ -1,0 +1,19 @@
+global gHState, gSubmitHighScoreMgr
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("submitNameQuit_Up")
+end
+
+on mouseUp
+  if gHState = 1 then
+    gHState = 2
+    if member("HSnameInput").text.length < 2 then
+      member("HSnameInput").text = "SiteKick"
+    end if
+    gSubmitHighScoreMgr.SubmitScore()
+  end if
+  if gHState = 8 then
+    gHState = 9
+  end if
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+end

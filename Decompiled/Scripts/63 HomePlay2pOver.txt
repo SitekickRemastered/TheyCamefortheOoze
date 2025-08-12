@@ -1,0 +1,24 @@
+global g2Play, gTutorial, gConfigScreen
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("HomePlay2p")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  if gTutorial = 0 then
+    g2Play = 1
+    if gConfigScreen = 0 then
+      go("Play2p")
+    else
+      go("Config2")
+    end if
+  else
+    g2Play = 1
+    if gConfigScreen = 0 then
+      go("Play1p")
+    else
+      go("Config2")
+    end if
+  end if
+end

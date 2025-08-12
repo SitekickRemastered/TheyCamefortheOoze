@@ -1,0 +1,10 @@
+global gState
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("exitButNorm1")
+end
+
+on mouseUp
+  gState = 2
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+end

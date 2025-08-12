@@ -1,0 +1,43 @@
+global gHState, gSubmitHighScoreMgr
+
+on mouseLeave me
+  set the member of sprite the currentSpriteNum to member("submitName_Up")
+end
+
+on checkString me
+  len = member("HSnameInput").text.length
+  tempText = member("HSnameInput").text
+  repeat with i = 1 to len
+    search = charToNum(tempText.char[i])
+    if ((search >= 48) and (search <= 57)) or ((search >= 65) and (search <= 90)) or ((search >= 97) and (search <= 122)) or (search = 32) or (search = 95) then
+      next repeat
+    end if
+    return 0
+  end repeat
+  return 1
+end
+
+on mouseUp me
+  if checkString(me) = 1 then
+    if gHState = 1 then
+      if member("HSnameInput").text.length < 2 then
+        member("HSnameInput").text = "SiteKick"
+      end if
+      sprite(18).loc = point(0, -100)
+      sprite(19).loc = point(0, -100)
+      sprite(35).loc = point(100, 430)
+      gSubmitHighScoreMgr.SubmitScore()
+    end if
+    if gHState = 8 then
+      if member("HSnameInput").text.length < 2 then
+        member("HSnameInput").text = "SiteKick"
+      end if
+      gHState = 9
+    end if
+    sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  else
+    CR = numToChar(13)
+    member("youSetScore").text = "Oops! Only letters and numbers please."
+    sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  end if
+end

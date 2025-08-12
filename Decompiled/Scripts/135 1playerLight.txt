@@ -1,0 +1,8 @@
+global g2Play
+
+on mouseLeave
+end
+
+on mouseUp
+  g2Play = 0
+end

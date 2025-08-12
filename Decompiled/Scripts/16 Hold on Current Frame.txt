@@ -1,0 +1,20 @@
+on getBehaviorDescription me
+  return "HOLD ON CURRENT FRAME" & RETURN & RETURN & "Drop this behavior into the Script Channel of the Score or onto the Stage in order to keep the playback head in the current frame." & RETURN & RETURN & "PARAMETERS: None"
+end
+
+on getBehaviorTooltip me
+  return "Frame behavior. " & "Holds the playback head still."
+end
+
+on exitFrame me
+  gAdminMusic(me)
+  go(the frame)
+end
+
+on isOKToAttach me, aSpriteType, aSpriteNum
+  tisok = 0
+  if aSpriteType = #script then
+    tisok = 1
+  end if
+  return tisok
+end

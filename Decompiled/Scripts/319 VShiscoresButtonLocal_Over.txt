@@ -1,0 +1,10 @@
+global gHState
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("VShiscoresButtonLocal_Up")
+end
+
+on mouseUp
+  gHState = 30
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+end

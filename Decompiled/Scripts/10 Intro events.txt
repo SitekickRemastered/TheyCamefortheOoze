@@ -1,0 +1,24 @@
+property pCurrentMs
+global gIntroState
+
+on keyUp me
+  go("Home")
+end
+
+on beginSprite me
+  gIntroState = 0
+  pCurrentMs = 0
+end
+
+on exitFrame me
+  if sprite(3).playing = 1 then
+    gIntroState = 1
+  end if
+  if (sprite(3).playing = 0) and (gIntroState = 1) and (pCurrentMs = 0) then
+    pCurrentMs = _system.milliSeconds
+  end if
+  if (_system.milliSeconds > (pCurrentMs + 3000)) and (pCurrentMs > 0) then
+    go("Home")
+  end if
+  go(the frame)
+end

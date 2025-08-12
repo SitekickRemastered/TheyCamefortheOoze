@@ -1,0 +1,19 @@
+global gState, gTutorial, gNextEvent
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("tutNextButNorm5")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  if gState = 0 then
+    gState = 1
+  else
+    gState = 0
+    gNextEvent = 1
+    repeat with a = 749 to 770
+      sprite(a).loc = point(0, 850)
+    end repeat
+  end if
+  sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+end

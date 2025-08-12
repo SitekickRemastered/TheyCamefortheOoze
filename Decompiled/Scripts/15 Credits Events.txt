@@ -1,0 +1,10 @@
+on beginSprite me
+  member("creditsText").scrollTop = 0
+  member("creditsText").useHypertextStyles = 1
+  _movie.puppetTempo(10)
+end
+
+on exitFrame
+  member("creditsText").scrollTop = member("creditsText").scrollTop + 2
+  go(the frame)
+end

@@ -1,0 +1,20 @@
+global gConfigScreen
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("HomeConfig")
+end
+
+on mouseUp me
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  if gConfigScreen = 0 then
+    gConfigScreen = 1
+    sprite(20).loc = point(192, 525)
+  else
+    if gConfigScreen = 1 then
+      gConfigScreen = 0
+      sprite(20).loc = point(-100, -100)
+    end if
+  end if
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  baWriteIni("system", "configScreen", string(gConfigScreen), iniLoc)
+end

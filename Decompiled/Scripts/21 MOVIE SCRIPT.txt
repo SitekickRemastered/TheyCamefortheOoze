@@ -1,0 +1,50 @@
+global gRetrieveHighScoreMgr, gSubmitHighScoreMgr, gOrigScreenWidth, gOrigScreenHeight, gOrigScreenDepth, gOrigRefresh
+
+on startMovie
+  lBuddy = baRegister("Corus Entertainment", 10105017)
+  dosRegister("9B3G011-1D569I8")
+  gRetrieveHighScoreMgr = script("gGetHighScore-Mgr").new()
+  gRetrieveHighScoreMgr.Init()
+  gSubmitHighScoreMgr = script("gSubmitHighScore-Mgr").new()
+  gSubmitHighScoreMgr.Init()
+  lvar = dosGetDisplay()
+  gOrigScreenWidth = lvar[1]
+  gOrigScreenHeight = lvar[2]
+  gOrigScreenDepth = lvar[3]
+  gOrigRefresh = lvar[4]
+  if the runMode <> "Author" then
+    FullScreenFunction()
+  end if
+end
+
+on activateWindow me
+  if the runMode <> "Author" then
+    FullScreenFunction()
+  end if
+end
+
+on deactivateWindow me
+  if the runMode <> "Author" then
+    dosSetDisplay(gOrigScreenWidth, gOrigScreenHeight, gOrigScreenDepth, gOrigRefresh, "permanent")
+    _movie.displayTemplate.titlebarOptions.minimizebox = 1
+    _movie.displayTemplate.titlebarOptions.maximizebox = 1
+    _movie.displayTemplate.titlebarOptions.visible = 1
+    dosSetWindowState(baWinHandle(), "Minimized")
+  end if
+end
+
+on FullScreenFunction
+  dosSetDisplay(800, 600, 16, 75, "Permanent")
+  _movie.displayTemplate.titlebarOptions.minimizebox = 0
+  _movie.displayTemplate.titlebarOptions.maximizebox = 0
+  _movie.displayTemplate.titlebarOptions.visible = 0
+  dosSetWindowState(baWinHandle(), "Normal")
+end
+
+on stopMovie me
+  gRetrieveHighScoreMgr.Uninit()
+  gSubmitHighScoreMgr.Uninit()
+  if the runMode <> "Author" then
+    dosSetDisplay(gOrigScreenWidth, gOrigScreenHeight, gOrigScreenDepth, gOrigRefresh, "permanent")
+  end if
+end

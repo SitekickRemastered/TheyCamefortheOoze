@@ -1,0 +1,1 @@
+global g2Playon mouseEnter  if g2Play = 1 then    sound(7).playFile(_movie.path & "sound\" & "buttonover2.wav")    set the member of sprite the currentSpriteNum to member("ConfigAttackRing2POverUp")  end ifend

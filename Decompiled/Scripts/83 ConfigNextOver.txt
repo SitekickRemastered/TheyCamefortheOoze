@@ -1,0 +1,7 @@
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigNext")
+end
+
+on mouseUp
+  go("Config2")
+end

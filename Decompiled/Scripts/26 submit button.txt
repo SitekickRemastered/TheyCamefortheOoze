@@ -1,0 +1,5 @@
+global gSubmitHighScoreMgr
+
+on mouseUp me
+  gSubmitHighScoreMgr.SubmitScore()
+end

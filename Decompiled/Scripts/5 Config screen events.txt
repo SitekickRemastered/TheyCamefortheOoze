@@ -1,0 +1,115 @@
+global gPlayer, gRank, g2Play
+
+on beginSprite me
+  gPlay = 0
+  repeat with a = 30 to 42
+    sprite(a).visible = 0
+  end repeat
+end
+
+on exitFrame me
+  case gPlayer[1] of
+    1:
+      sprite(7).locH = 270
+      sprite(9).member = "TysonPic"
+      sprite(12).member = "TysonName"
+    2:
+      sprite(7).locH = 355
+      sprite(9).member = "KaiPic"
+      sprite(12).member = "KaiName"
+    3:
+      sprite(7).locH = 440
+      sprite(9).member = "RayPic"
+      sprite(12).member = "RayName"
+    4:
+      sprite(7).locH = 525
+      sprite(9).member = "MaxPic"
+      sprite(12).member = "MaxName"
+  end case
+  case gPlayer[2] of
+    1:
+      sprite(40).locH = 270
+      sprite(42).member = "TysonPic"
+      sprite(41).member = "TysonName"
+    2:
+      sprite(40).locH = 355
+      sprite(42).member = "KaiPic"
+      sprite(41).member = "KaiName"
+    3:
+      sprite(40).locH = 440
+      sprite(42).member = "RayPic"
+      sprite(41).member = "RayName"
+    4:
+      sprite(40).locH = 525
+      sprite(42).member = "MaxPic"
+      sprite(41).member = "MaxName"
+  end case
+  repeat with a = 21 to 27
+    sprite(a).width = 27
+    sprite(a).height = 20
+  end repeat
+  case gRank[1] of
+    1:
+      sprite(21).width = 54
+      sprite(21).height = 40
+    2:
+      sprite(22).width = 54
+      sprite(22).height = 40
+    3:
+      sprite(23).width = 54
+      sprite(23).height = 40
+    4:
+      sprite(24).width = 54
+      sprite(24).height = 40
+    5:
+      sprite(25).width = 54
+      sprite(25).height = 40
+    6:
+      sprite(26).width = 54
+      sprite(26).height = 40
+    7:
+      sprite(27).width = 54
+      sprite(27).height = 40
+    otherwise:
+      sprite(21).width = 54
+      sprite(21).height = 40
+  end case
+  repeat with a = 31 to 37
+    sprite(a).width = 27
+    sprite(a).height = 20
+  end repeat
+  case gRank[2] of
+    1:
+      sprite(31).width = 54
+      sprite(31).height = 40
+    2:
+      sprite(32).width = 54
+      sprite(32).height = 40
+    3:
+      sprite(33).width = 54
+      sprite(33).height = 40
+    4:
+      sprite(34).width = 54
+      sprite(34).height = 40
+    5:
+      sprite(35).width = 54
+      sprite(35).height = 40
+    6:
+      sprite(36).width = 54
+      sprite(36).height = 40
+    7:
+      sprite(37).width = 54
+      sprite(37).height = 40
+    otherwise:
+      sprite(31).width = 54
+      sprite(31).height = 40
+  end case
+  if g2Play = 0 then
+    sprite(45).member = "1playerLight"
+    sprite(46).member = "2playerDark"
+  else
+    sprite(45).member = "1playerDark"
+    sprite(46).member = "2playerLight"
+  end if
+  go(the frame)
+end

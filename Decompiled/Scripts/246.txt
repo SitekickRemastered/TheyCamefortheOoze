@@ -1,0 +1,13 @@
+global gRank
+
+on mouseEnter
+  sound(7).playFile(_movie.path & "sound\" & "buttonover2.wav")
+end
+
+on mouseLeave me
+end
+
+on mouseUp me
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+  gRank[1] = 4
+end

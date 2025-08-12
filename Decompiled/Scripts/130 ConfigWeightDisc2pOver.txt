@@ -1,0 +1,16 @@
+global gWeightDisc, gWeightDiscName, gARingNames, gARingCombo, gARingMulti, gARingChain, gWDiscNames, gWDiscStats, gSGearNames, gSGearStats, gBBaseNames, gBBaseStats
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigWeightDisc2p")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+  gWeightDisc[2] = gWeightDisc[2] + 1
+  if gWeightDisc[2] = 4 then
+    gWeightDisc[2] = 1
+  end if
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  gWeightDiscName[2] = gWDiscNames[gWeightDisc[2]]
+  member("PressPlay2").text = gWeightDiscName[2]
+end

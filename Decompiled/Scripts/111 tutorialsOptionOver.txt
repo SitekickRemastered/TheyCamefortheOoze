@@ -1,0 +1,22 @@
+global gTutorial
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("tutorialsOptionUp")
+end
+
+on mouseUp me
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  if gTutorial = 0 then
+    put "TUTORIAL TRUE"
+    gTutorial = 1
+    sprite(17).loc = point(67, 525)
+  else
+    if gTutorial = 1 then
+      put "TUTORIAL FALSE"
+      gTutorial = 0
+      sprite(17).loc = point(-100, -100)
+    end if
+  end if
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  baWriteIni("system", "tutorialOn", string(gTutorial), iniLoc)
+end

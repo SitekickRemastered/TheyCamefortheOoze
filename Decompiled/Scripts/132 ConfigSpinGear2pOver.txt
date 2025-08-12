@@ -1,0 +1,16 @@
+global gSpinGear, gSpinGearName, gARingNames, gARingCombo, gARingMulti, gARingChain, gWDiscNames, gWDiscStats, gSGearNames, gSGearStats, gBBaseNames, gBBaseStats
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigSpinGear2p")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+  gSpinGear[2] = gSpinGear[2] + 1
+  if gSpinGear[2] = 4 then
+    gSpinGear[2] = 1
+  end if
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  gSpinGearName[2] = gSGearNames[gSpinGear[2]]
+  member("PressPlay2").text = gSpinGearName[2]
+end

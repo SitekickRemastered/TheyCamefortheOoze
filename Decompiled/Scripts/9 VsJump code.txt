@@ -1,0 +1,140 @@
+property pRingName, pWeightDisc, pSpinGear, pBladeBase
+global gPlayer, gAttackRing, gWeightDisc, gSpinGear, gBladeBase, gAttackRingName, gAttackRingCombo, gAttackRingConsec, gAttackRingChain, gWeightDiscName, gWeightDiscMass, gSpinGearName, gSpinGearStyle, gBladeBaseName, gBladeBaseStyle, gTutorial, g2Play, g2Pmatch, gRank, gTutorialNum, gRun2P, g2PlayWinner, gHState, gLastScore1p, gLastLevel1p, gLastScoreVS, gLastLevelVS, gConfigScreen, gMusicVolume, gCurrentMusic, gParserObject, gTestMode, gVSbutton, gState, gARingNames, gARingCombo, gARingMulti, gARingChain, gWDiscNames, gWDiscStats, gSGearNames, gSGearStats, gBBaseNames, gBBaseStats, gCodeMgr, gXMLReady, gRetrieveHighScoreMgr, gSubmitHighScoreMgr, gOrigScreenWidth, gOrigScreenHeight, gOrigScreenDepth, gOrigScreenRefresh
+
+on beginSprite me
+  tempCodeMgr = gCodeMgr
+  put "me"
+  temp1 = gRetrieveHighScoreMgr
+  temp2 = gSubmitHighScoreMgr
+  temp3 = gOrigScreenWidth
+  temp4 = gOrigScreenHeight
+  temp5 = gOrigScreenDepth
+  temp6 = gOrigScreenRefresh
+  _global.clearGlobals()
+  put "me2"
+  gCodeMgr = tempCodeMgr
+  gRetrieveHighScoreMgr = temp1
+  gSubmitHighScoreMgr = temp2
+  gOrigScreenWidth = temp3
+  gOrigScreenHeight = temp4
+  gOrigScreenDepth = temp5
+  gOrigScreenRefresh = temp6
+  g2PlayWinner = 0
+  gHState = 0
+  gLastScore1p = 0
+  gLastLevel1p = 0
+  gLastScoreVS = 0
+  gLastLevelVS = 0
+  gTutorialNum = 0
+  g2Pmatch = [0, 0]
+  gPlayer = [[], []]
+  gAttackRing = [[], []]
+  gWeightDisc = [[], []]
+  gSpinGear = [[], []]
+  gBladeBase = [[], []]
+  gAttackRingName = [[], []]
+  gAttackRingCombo = [[], []]
+  gAttackRingConsec = [[], []]
+  gAttackRingChain = [[], []]
+  gWeightDiscName = [[], []]
+  gWeightDiscMass = [[], []]
+  gSpinGearName = [[], []]
+  gSpinGearStyle = [[], []]
+  gBladeBaseName = [[], []]
+  gBladeBaseStyle = [[], []]
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  gRank = [1, 1]
+  gRank[1] = value(baReadIni("player1", "rank", "Error", iniLoc))
+  gRank[2] = value(baReadIni("player2", "rank", "Error", iniLoc))
+  set the floatPrecision to 2
+  gARingNames = ["Combo Chip: Bonus for Combos; less for Chains", "Chain Chip: Bonus for Chains; less for Multis", "Multi Chip: Bonus for Multis; less for Combos"]
+  gARingCombo = [1.19999999999999996, 1.0, 0.80000000000000004]
+  gARingMulti = [1.0, 0.20000000000000001, 1.19999999999999996]
+  gARingChain = [0.80000000000000004, 1.19999999999999996, 1.0]
+  gWDiscNames = ["Guzzler Chip: Builds power fast, but uses it quickly", "Neutral Chip: Builds and uses power at a normal rate", "Economy Chip: Builds power slow, but uses it slowly"]
+  gWDiscStats = [1.19999999999999996, 1.0, 0.80000000000000004]
+  gSGearNames = ["Right Chip: Clusters rotate clockwise", "Lateral Chip: Cycles the alien discs within the cluster", "Left Chip: Clusters rotate counter-clockwise"]
+  gSGearStats = [0, 1, 2]
+  gBBaseNames = ["Static Row Chip: Clusters appear in rows of 3", "Variable Chip: Clusters take various shapes"]
+  gBBaseStats = [0, 1]
+  repeat with player = 1 to 2
+    gPlayer[player] = value(baReadIni("player" & string(player), "player", "Error", iniLoc))
+    gAttackRing[player] = value(baReadIni("player" & string(player), "attackRing", "Error", iniLoc))
+    gWeightDisc[player] = value(baReadIni("player" & string(player), "weightDisc", "Error", iniLoc))
+    gSpinGear[player] = value(baReadIni("player" & string(player), "spinGear", "Error", iniLoc))
+    gBladeBase[player] = value(baReadIni("player" & string(player), "bladeBase", "Error", iniLoc))
+    gAttackRingName[player] = gARingNames[gAttackRing[player]]
+    gAttackRingCombo[player] = gARingCombo[gAttackRing[player]]
+    gAttackRingConsec[player] = gARingMulti[gAttackRing[player]]
+    gAttackRingChain[player] = gARingChain[gAttackRing[player]]
+    gWeightDiscName[player] = gWDiscNames[gWeightDisc[player]]
+    gWeightDiscMass[player] = gWDiscStats[gWeightDisc[player]]
+    gSpinGearName[player] = gSGearNames[gSpinGear[player]]
+    gSpinGearStyle[player] = gSGearStats[gSpinGear[player]]
+    gBladeBaseName[player] = gBBaseNames[gBladeBase[player]]
+    gBladeBaseStyle[player] = gBBaseStats[gBladeBase[player]]
+  end repeat
+  gTestMode = value(baReadIni("system", "testMode", "Error", iniLoc))
+  if gTestMode = 1 then
+    member("versionInfo").text = "Version: " & _player.applicationName
+    sprite(12).loc = point(587, 536)
+  end if
+  g2Play = 0
+  member("2Pmatch").text = "1P Wins: 0 , 2P Wins: 0"
+  gRun2P = 0
+  gMusicVolume = 200
+  repeat with player = 1 to 2
+    case gAttackRing[player] of
+      1:
+        pRingName = "img_configPiece_helm3"
+      2:
+        pRingName = "img_configPiece_helm1"
+      3:
+        pRingName = "img_configPiece_helm2"
+    end case
+    case gWeightDisc[player] of
+      1:
+        pWeightDisc = "img_configPiece_wings3"
+      2:
+        pWeightDisc = "img_configPiece_wings2"
+      3:
+        pWeightDisc = "img_configPiece_wings1"
+    end case
+    case gSpinGear[player] of
+      1:
+        pSpinGear = "img_configPiece_arm2"
+      2:
+        pSpinGear = "img_configPiece_arm3"
+      3:
+        pSpinGear = "img_configPiece_arm1"
+    end case
+    case gBladeBase[player] of
+      1:
+        pBladeBase = "img_configPiece_legs2"
+      2:
+        pBladeBase = "img_configPiece_legs1"
+    end case
+    wingz = pWeightDisc
+    skz = "configSitekickP1"
+    legz = pBladeBase
+    armz = pSpinGear
+    helmz = pRingName
+    put "WINGS" & wingz
+    if player = 1 then
+      larect = rect(0, 0, 281, 276)
+    else
+      larect = rect(0, 0, 290 - 8, 276)
+    end if
+    member("faceWings" & player).image = member(wingz).image.crop(larect)
+    member("faceSK" & player).image = member(skz).image.crop(larect)
+    member("faceLegs" & player).image = member(legz).image.crop(larect)
+    member("faceArms" & player).image = member(armz).image.crop(larect)
+    member("faceHelm" & player).image = member(helmz).image.crop(larect)
+  end repeat
+  gVSbutton = 1
+end
+
+on exitFrame me
+  g2Play = 1
+  go("Play2p")
+end

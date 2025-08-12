@@ -1,0 +1,24 @@
+global gRank, gAttackRing, gSpinGear, gBladeBase, gPlayer, gWeightDisc, g2Play
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigButtonMain_Up")
+end
+
+on mouseUp
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  baWriteIni("player1", "attackRing", string(gAttackRing[1]), iniLoc)
+  baWriteIni("player1", "weightDisc", string(gWeightDisc[1]), iniLoc)
+  baWriteIni("player1", "spinGear", string(gSpinGear[1]), iniLoc)
+  baWriteIni("player1", "bladeBase", string(gBladeBase[1]), iniLoc)
+  baWriteIni("player1", "player", string(gPlayer[1]), iniLoc)
+  baWriteIni("player1", "rank", string(gRank[1]), iniLoc)
+  if g2Play = 1 then
+    baWriteIni("player2", "attackRing", string(gAttackRing[2]), iniLoc)
+    baWriteIni("player2", "weightDisc", string(gWeightDisc[2]), iniLoc)
+    baWriteIni("player2", "spinGear", string(gSpinGear[2]), iniLoc)
+    baWriteIni("player2", "bladeBase", string(gBladeBase[2]), iniLoc)
+    baWriteIni("player2", "player", string(gPlayer[2]), iniLoc)
+    baWriteIni("player2", "rank", string(gRank[2]), iniLoc)
+  end if
+  go("Home")
+end

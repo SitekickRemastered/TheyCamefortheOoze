@@ -1,0 +1,4 @@
+on mouseEnter
+  set the member of sprite the currentSpriteNum to member("ButtonVersus_Over")
+  sound(7).playFile(_movie.path & "sound\" & "buttonover2.wav")
+end

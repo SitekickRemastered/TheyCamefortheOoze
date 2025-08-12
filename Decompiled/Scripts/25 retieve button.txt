@@ -1,0 +1,5 @@
+global gRetrieveHighScoreMgr
+
+on mouseUp me
+  gRetrieveHighScoreMgr.RetrieveHighScores()
+end

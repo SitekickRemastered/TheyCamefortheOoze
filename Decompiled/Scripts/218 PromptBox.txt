@@ -1,0 +1,30 @@
+global g2Play
+
+on exitFrame me
+  i = _player.currentSpriteNum
+  if (sprite(751).locV > 0) and (sprite(751).locV < 600) then
+    wordz = member("tutorialText").word.count
+    if wordz <= 25 then
+      sise = 205
+      vAdjust = 30
+    end if
+    if (wordz > 25) and (wordz <= 40) then
+      sise = 290
+      vAdjust = 60
+    end if
+    if wordz > 40 then
+      sise = 290 + 42
+      vAdjust = 60 + 30
+    end if
+    if (member("tutorialTitle").text = "Congratulations!") and (g2Play = 0) then
+      sise = 460
+      vAdjust = 120
+    end if
+    sprite(i).height = sise
+    sprite(i).locH = sprite(751).locH + 265
+    sprite(i).locV = sprite(751).locV + vAdjust - 5
+  else
+    sprite(i).locH = 0
+    sprite(i).locV = 850
+  end if
+end

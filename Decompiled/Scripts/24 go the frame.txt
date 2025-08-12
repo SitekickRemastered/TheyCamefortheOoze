@@ -1,0 +1,27 @@
+global gHighScoreXML, gRetrieveHighScoreMgr, gSumbitScore
+
+on exitFrame me
+  case gHighScoreXML = VOID of
+    0:
+      case netDone(gHighScoreXML) of
+        1:
+          gRetrieveHighScoreMgr.DisplayHighScoreXML(netTextResult())
+          gHighScoreXML = VOID
+          gRetrieveHighScoreMgr.parseHighScoreXML()
+      end case
+  end case
+  case gSumbitScore = VOID of
+    0:
+      case netDone(gSumbitScore) of
+        1:
+          lvar = netTextResult()
+          trace(lvar)
+          case lvar of
+            "message=success":
+              gRetrieveHighScoreMgr.RetrieveHighScores()
+          end case
+          gSumbitScore = VOID
+      end case
+  end case
+  _movie.go(_movie.frame)
+end

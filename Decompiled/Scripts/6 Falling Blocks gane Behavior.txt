@@ -1,0 +1,3640 @@
+property pSpeed, pEntryLocation, pLeftWall, pRightWall, pFloor, pCeiling, pBlockSize, pFirstSprite, pLastSprite, pPieceList, pPieceType, pPieceOrientation, pPieceSprites, pPieceLoc, pNextMoveTime, pKeyboardmove, pGroupPoints, pComboPoints, pDiscsInCluster, pGroupSize, pause1, pNumTotalColours, pMaxSameDiscs, pKeySpeed, pGravity, pExtraShapes, pause2, pause3, pStageSize, pNumRows, pNumCols, pDiscWidth, pDiscHeight, pActiveDiscs, pConsecutive, pChain, pLastCluster, pRotateCycle, pSmoothDrop, pSpeedSmooth, pVoiceVolume, pNumChains, pNumConsecutives, pNumCombos, pSpinMax, pStandardSpin, pBonusSpin, pLastSpinTime, pSpinDecay, pLevelSpeedIncrease, pNewLevelReset, BBdiscH, pNumSummons, pNumAttacks, pADBonusPoints, pADBonusSpin, pLogGame, pGifTime, pGifTimeStamp, pFarLeft, pFarRight, pTempVar1, pTempVar2, pStartColours, pStagesNewColour, pNumColours, pBonusRoundTexts, pBonusTimeStart, pBonusTime, pDamageDiscsH, pDamageDiscsC, pAttackBonus, pClusterMoved, pAttackType, pFallList, pDropDiscs, pLowFPS, pKeysLocked, pRemoveList, pDamageDiscNum, pRunCollision, pPauseGame, pBonusMax, pBonusTimeMax, p2PgameEnd, pState, p2PClusterMoves
+global gParserObject, gClustersDropped, gScore, gGroupsCreated, gTimeStart, gGameEndedNormal, gLastPoints1, gSpinMeter, gLastSpin, gLevel, gStage, gState, gBBmeter, gAttackDisc, gSummonPatterns, gAttackPatterns, gTest, gTargetDisc, gPlayer, gAttackRing, gWeightDisc, gSpinGear, gBladeBase, gAttackRingName, gAttackRingCombo, gAttackRingConsec, gAttackRingChain, gWeightDiscName, gWeightDiscMass, gSpinGearName, gSpinGearStyle, gBladeBaseName, gBladeBaseStyle, gFrameNum, gStartMilliSeconds, gTutorial, gNextEvent, g2Play, gFrameCount, g2Pmatch, gRank, gTutorialSkip, oAmmoMag, gDiscBeam, gLastScore1p, gLastLevel1p, g2PlayWinner, gLastScoreVS, gLastLevelVS, gCurrentMusic, gTestMode, gVSbutton, gCodeMgr, gMusicVolume, gTutorialTexts, gTutorialNum, gBonusRound, gRun2P
+
+on beginSprite me
+  pClusterMoved = [0, 0]
+  pTempVar1 = 0
+  resetAll(me)
+  if gVSbutton = 1 then
+    displayTextBox(me, 5)
+    gVSbutton = 0
+  end if
+  if gTutorial = 1 then
+    tutorialEvents(me)
+  end if
+  if gTutorialNum <> 6 then
+    musicPlayer(me, 0)
+  end if
+  if pLogGame = 1 then
+    writeLogFile(me)
+  end if
+  sprite(725).rotation = 10
+end
+
+on resetAll me
+  sprite(8).loc = point(404, -200)
+  sprite(9).loc = point(200, -200)
+  repeat with i = 1 to 40
+    sprite(i).visible = 1
+  end repeat
+  gState = 0
+  pState = 0
+  gGameEndedNormal = 0
+  gScore = [0, 0]
+  gClustersDropped = [0, 0]
+  gGroupsCreated = 0
+  gAttackDisc = [0, 0]
+  member("score1").text = "0"
+  member("score2").text = "0"
+  pSpeed = [[], []]
+  pGroupPoints = 50
+  pComboPoints = 25
+  pSpeed[1] = 20
+  pSpeed[2] = 20
+  pDiscsInCluster = 3
+  pGroupSize = 3
+  pNumTotalColours = 7
+  pStartColours = 3
+  pNumColours = value(pStartColours)
+  pMaxSameDiscs = 2
+  pGravity = 1
+  if (g2Play = 1) and (gTutorial = 1) and (gTutorialNum <> 6) then
+    g2Play = 0
+    gRun2P = 1
+  end if
+  if g2Play = 0 then
+    pause1 = 200
+    pause2 = 0
+    pause3 = 750
+    sprite(17).loc = point(5, 22)
+    sprite(35).loc = point(198, 58)
+  else
+    pause1 = 0
+    pause2 = 0
+    pause3 = 1000
+    sprite(17).loc = point(0, -100)
+    sprite(35).loc = point(0, -100)
+  end if
+  pExtraShapes = [[], []]
+  pExtraShapes[1] = gBladeBaseStyle[1]
+  pExtraShapes[2] = gBladeBaseStyle[2]
+  pKeySpeed = 125
+  pEntryLocation = [[], []]
+  pLeftWall = [[], []]
+  pRightWall = [[], []]
+  pFloor = [[], []]
+  pCeiling = [[], []]
+  if g2Play = 0 then
+    pEntryLocation[1] = point(400 - 10 + 12, 166 - 64 - 8)
+    pLeftWall[1] = 240 - 10 + 12 + 32
+    pRightWall[1] = 592 - 10 + 12 - 32 - 32
+    pFloor[1] = 550 - 64 - 8
+    pCeiling[1] = 198 - 64 - 8
+  else
+    pEntryLocation[2] = point(182 + 7 + 18 - 7, 154 - 64 + 6 + 32)
+    pLeftWall[2] = 22 + 7 + 18 + 32 - 7
+    pRightWall[2] = 374 + 7 + 18 - 32 - 32 - 7
+    pFloor[2] = 538 - 64 + 6
+    pCeiling[2] = 186 - 64 + 6 + 32
+    pEntryLocation[1] = point(576 + 7 + 13 + 7, 154 - 64 + 6 + 32)
+    pLeftWall[1] = 416 + 7 + 13 + 32 + 7
+    pRightWall[1] = 768 + 7 + 13 - 32 - 32 + 7
+    pFloor[1] = 538 - 64 + 6
+    pCeiling[1] = 186 - 64 + 6 + 32
+  end if
+  pStageSize = 384
+  pFirstSprite = 61
+  pLastSprite = 360
+  pNumRows = 12
+  pNumCols = 12
+  pNewLevelReset = 1
+  if (pStageSize mod pNumCols) = 0 then
+    pDiscWidth = pStageSize / pNumCols
+  else
+    pDiscWidth = pStageSize / (pNumCols + 1)
+  end if
+  if (pStageSize mod pNumRows) = 0 then
+    pDiscHeight = pStageSize / pNumRows
+  else
+    pDiscHeight = pStageSize / (pNumRows + 1)
+  end if
+  pRotateCycle = [[], []]
+  pRotateCycle[1] = gSpinGearStyle[1]
+  pRotateCycle[2] = gSpinGearStyle[2]
+  pSmoothDrop = 0
+  pSpeedSmooth = 200
+  gMusicVolume = 200
+  pVoiceVolume = 255
+  pSpinDecay = [[], []]
+  pSpinDecay[1] = 4000
+  pSpinDecay[2] = 4000
+  pSpinDecay[1] = integer(pSpinDecay[1] / gWeightDiscMass[1])
+  pSpinDecay[2] = integer(pSpinDecay[2] / gWeightDiscMass[2])
+  put "pSpinDecay1 " & pSpinDecay[1]
+  pLevelSpeedIncrease = 1.10000000000000009
+  pSpeed[1] = integer(pSpeed[1] / power(pLevelSpeedIncrease, gRank[1]))
+  pSpeed[2] = integer(pSpeed[2] / power(pLevelSpeedIncrease, gRank[2]))
+  pSpeedSmooth = integer(pSpeedSmooth * power(pLevelSpeedIncrease, gRank[1]))
+  pStandardSpin = 2
+  pBonusSpin = 1
+  pADBonusPoints = 10
+  pADBonusSpin = 1
+  pLogGame = 0
+  pStagesNewColour = 3
+  put "XML loaded"
+  pLastCluster = [0, 0]
+  gLastPoints1 = 0
+  pPieceList = [[], []]
+  getPieceList(me, 1)
+  getPieceList(me, 2)
+  put "getpiecelistdone"
+  pNextMoveTime = [[the ticks], [the ticks]]
+  gTimeStart = integer(_system.milliSeconds / 1000)
+  pKeyboardmove = [[:], [:]]
+  pConsecutive = [0, 0]
+  pChain = [0, 0]
+  if pSmoothDrop = 0 then
+    _movie.puppetTempo(30)
+  else
+    _movie.puppetTempo(pSpeedSmooth)
+  end if
+  gFrameCount = 0
+  repeat with a = 1 to 10
+    sprite(360 + a).width = pDiscWidth + 4
+    sprite(360 + a).height = pDiscHeight + 4
+    sprite(380 + a).width = pDiscWidth + 8
+    sprite(380 + a).height = pDiscHeight + 8
+    sprite(400 + a).width = pDiscWidth + 8
+    sprite(400 + a).height = pDiscHeight + 8
+  end repeat
+  pNumChains = [0, 0]
+  pNumConsecutives = 0
+  pNumCombos = 0
+  gSpinMeter = [0, 0]
+  gLastSpin = [0, 0]
+  gStage = 1
+  if g2Play = 0 then
+    member("levelText").text = "L1"
+  else
+    if gLevel <> 1 then
+      gLevel = gLevel + 1
+    end if
+    member("battleText").text = string(gLevel)
+  end if
+  sprite(8).width = 319
+  pSpinMax = sprite(8).width
+  sprite(9).visible = 1
+  sprite(9).width = 319
+  pSpinMax = sprite(9).width
+  BBdiscH = [0, 0]
+  gBBmeter = [0, 0]
+  updateBBMeter(me, 1)
+  updateBBMeter(me, 2)
+  pDamageDiscsH = [[], []]
+  pDamageDiscsC = [[], []]
+  loadSummonsPatterns(me)
+  put "summons loaded"
+  gFrameNum = 0
+  gStartMilliSeconds = 0
+  sprite(500).visible = 0
+  sprite(500).loc = pEntryLocation[1]
+  repeat while sprite(500).locH >= (pLeftWall[1] + pDiscWidth)
+    sprite(500).locH = sprite(500).locH - pDiscWidth
+    pFarLeft = sprite(500).locH
+  end repeat
+  repeat while sprite(500).locH <= (pRightWall[1] - pDiscWidth)
+    sprite(500).locH = sprite(500).locH + pDiscWidth
+    pFarRight = sprite(500).locH
+  end repeat
+  sprite(500).locV = -100
+  pActiveDiscs = [[], []]
+  repeat with i = pFirstSprite to pLastSprite
+    sprite(i).locV = -100
+  end repeat
+  repeat with i = 441 to 460
+    sprite(i).locV = -100
+  end repeat
+  repeat with i = 461 to 470
+    sprite(i).locV = -100
+  end repeat
+  pPieceSprites = [[], []]
+  pPieceLoc = [[], []]
+  pPieceOrientation = [[], []]
+  if g2Play = 1 then
+  end if
+  pBonusStage = 0
+  gNextEvent = 0
+  pBonusTimeStart = 0
+  pBonusTime = 0
+  pAttackBonus = [0, 0]
+  member("attackBonus1").text = "Attack Bonus: 0"
+  member("attackBonus2").text = "Attack Bonus: 0"
+  gTutorialSkip = 0
+  pAttackType = [0, 0]
+  pLowFPS = 1000
+  pDropDiscs = [0, 0]
+  pKeysLocked = [0, 0]
+  sprite(4).member = "HudPanel2_UL_VS"
+  if g2Play = 1 then
+    sprite(3).member = "HudPanel1_UL_VS"
+  end if
+  pDamageDiscNum = [0, 0]
+  pLastSpinTime = [0, 0]
+  gDiscBeam = [point(0, 0), point(0, 0)]
+  pRunCollision = [0, 0]
+  pTempVar2 = 0
+  if g2PlayWinner = -1 then
+    gScore[1] = gLastScoreVS
+    showScore(me, 1)
+  else
+    if g2PlayWinner = -2 then
+      gScore[2] = gLastScoreVS
+      showScore(me, 2)
+    else
+      gLevel = 1
+      member("battleText").text = string(gLevel)
+    end if
+  end if
+  lapoint = point(656, -34)
+  sprite(40).loc = lapoint
+  sprite(41).loc = point(735, 34)
+  sprite(42).loc = lapoint
+  sprite(43).loc = lapoint
+  sprite(44).loc = lapoint
+  if g2Play = 1 then
+    dapoint = point(-18 + 4, -34)
+    sprite(45).loc = dapoint
+    sprite(46).loc = point(57 + 8, 34)
+    sprite(47).loc = dapoint
+    sprite(48).loc = dapoint
+    sprite(49).loc = dapoint
+  end if
+  pPauseGame = [0, 0]
+  gBonusRound = 0
+  sprite(37).width = 162
+  pBonusMax = sprite(37).width
+  pBonusTimeMax = 0
+  sprite(37).locV = -200
+  sprite(36).locV = -200
+  sprite(16).locV = -200
+  pPieceType = [0, 0]
+  removeDiscs(me, 1)
+  removeDiscs(me, 2)
+  pRemoveList = [[], []]
+  repeat with i = 40 to 49
+    sprite(i).visible = 1
+  end repeat
+  sprite(57).visible = 1
+  sprite(58).visible = 1
+  sprite(471).visible = 1
+  sprite(472).visible = 1
+  sprite(476).loc = point(-100, -100)
+  sprite(477).loc = point(-100, -100)
+  p2PgameEnd = 0
+  p2PClusterMoves = [0, 0]
+end
+
+on idle
+end
+
+on resetBoard me
+  pLastCluster = [0, 0]
+  gLastPoints1 = 0
+  pConsecutive = [0, 0]
+  pChain = [0, 0]
+  gSpinMeter = [0, 0]
+  gLastSpin = [0, 0]
+  BBdiscH = [0, 0]
+  pDamageDiscsH = [[], []]
+  pDamageDiscsC = [[], []]
+  gAttackDisc = [0, 0]
+  pPieceSprites = [[], []]
+  pActiveDiscs = [[], []]
+  repeat with i = pFirstSprite to pLastSprite
+    sprite(i).locV = -100
+  end repeat
+  repeat with i = 441 to 460
+    sprite(i).locV = -100
+  end repeat
+  repeat with i = 461 to 470
+    sprite(i).locV = -100
+  end repeat
+  gFrameNum = 0
+  gStartMilliSeconds = 0
+  movePiecesDown(me, 1, 0)
+  movePiecesDown(me, 2, 0)
+  gTutorialSkip = 0
+  removeDiscs(me, 1)
+  removeDiscs(me, 2)
+  pRemoveList = [[], []]
+  sprite(37).locV = -200
+  sprite(36).locV = -200
+  pPauseGame = [0, 0]
+  pAttackType = [0, 0]
+  pDropDiscs = [0, 0]
+  pKeysLocked = [0, 0]
+  pDamageDiscNum[2] = 0
+  sprite(4).member = "HudPanel2_UL_VS"
+  sprite(15).loc = point(0, -100)
+  repeat with i = 40 to 49
+    sprite(i).visible = 1
+  end repeat
+  sprite(471).visible = 1
+  sprite(58).visible = 1
+  sprite(477).loc = point(-100, -100)
+  pDamageDiscNum[1] = 0
+  if g2Play = 0 then
+    sprite(3).member = "HudPanel1_UL"
+  else
+    sprite(3).member = "HudPanel1_UL_VS"
+  end if
+  sprite(14).loc = point(0, -100)
+  sprite(472).visible = 1
+  sprite(57).visible = 1
+  sprite(476).loc = point(-100, -100)
+  p2PClusterMoves = [0, 0]
+end
+
+on pauseIt ms
+  currentMs = _system.milliSeconds
+  repeat while _system.milliSeconds < (currentMs + ms)
+  end repeat
+end
+
+on playSound aChannel, soundName
+  cantFind = 0
+  if aChannel = 0 then
+    playedSound = 0
+    a = 3
+    repeat while playedSound = 0
+      if sound(a).status = 0 then
+        sound(a).playFile(_movie.path & "sound\" & soundName)
+        playedSound = 1
+      end if
+      a = a + 1
+      if a = 9 then
+        a = 3
+      end if
+      cantFind = cantFind + 1
+      if cantFind = 6 then
+        exit
+      end if
+    end repeat
+  else
+    sound(aChannel).playFile(_movie.path & "sound\" & soundName)
+  end if
+end
+
+on getPieceList me, player
+  case pDiscsInCluster of
+    2:
+      theList = []
+      add(theList, [[0, 0], [1, 0]])
+      add(theList, [[0, 0], [0, 1]])
+      add(theList, [[0, 0], [-1, 0]])
+      add(theList, [[0, 0], [0, -1]])
+      add(pPieceList[player], theList)
+    3:
+      theList = []
+      add(theList, [[-1, 0], [0, 0], [1, 0]])
+      add(theList, [[0, -1], [0, 0], [0, 1]])
+      add(theList, [[1, 0], [0, 0], [-1, 0]])
+      add(theList, [[0, 1], [0, 0], [0, -1]])
+      add(pPieceList[player], theList)
+      if pExtraShapes[player] = 1 then
+        theList = []
+        add(theList, [[0, 0], [0, -1], [1, 0]])
+        add(theList, [[0, 0], [1, 0], [0, 1]])
+        add(theList, [[0, 0], [0, 1], [-1, 0]])
+        add(theList, [[0, 0], [-1, 0], [0, -1]])
+        add(pPieceList[player], theList)
+      end if
+    4:
+      theList = []
+      add(theList, [[-2, 0], [-1, 0], [0, 0], [1, 0]])
+      add(theList, [[0, -2], [0, -1], [0, 0], [0, 1]])
+      add(theList, [[2, 0], [1, 0], [0, 0], [-1, 0]])
+      add(theList, [[0, 2], [0, 1], [0, 0], [0, -1]])
+      add(pPieceList[player], theList)
+      if pExtraShapes[player] = 1 then
+        theList = []
+        add(theList, [[0, 0], [0, -1], [1, -1], [1, 0]])
+        add(theList, [[0, -1], [1, -1], [1, 0], [0, 0]])
+        add(theList, [[1, -1], [1, 0], [0, 0], [0, -1]])
+        add(theList, [[1, 0], [0, 0], [0, -1], [1, -1]])
+        add(pPieceList[player], theList)
+      end if
+      if pExtraShapes[player] = 1 then
+        theList = []
+        add(theList, [[-1, 0], [0, 0], [1, 0], [1, 1]])
+        add(theList, [[0, -1], [0, 0], [0, 1], [-1, 1]])
+        add(theList, [[1, 0], [0, 0], [-1, 0], [-1, -1]])
+        add(theList, [[0, 1], [0, 0], [0, -1], [1, -1]])
+        add(pPieceList[player], theList)
+      end if
+      if pExtraShapes[player] = 1 then
+        theList = []
+        add(theList, [[-1, 0], [0, 0], [1, 0], [1, -1]])
+        add(theList, [[0, -1], [0, 0], [0, 1], [1, 1]])
+        add(theList, [[1, 0], [0, 0], [-1, 0], [-1, 1]])
+        add(theList, [[0, 1], [0, 0], [0, -1], [-1, -1]])
+        add(pPieceList[player], theList)
+      end if
+      if pExtraShapes[player] = 1 then
+        theList = []
+        add(theList, [[-1, 0], [0, 0], [1, 0], [0, -1]])
+        add(theList, [[0, -1], [0, 0], [0, 1], [1, 0]])
+        add(theList, [[1, 0], [0, 0], [-1, 0], [0, 1]])
+        add(theList, [[0, 1], [0, 0], [0, -1], [-1, 0]])
+        add(pPieceList[player], theList)
+      end if
+    5:
+      theList = []
+      add(theList, [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0]])
+      add(theList, [[0, -2], [0, -1], [0, 0], [0, 1], [0, 2]])
+      add(theList, [[2, 0], [1, 0], [0, 0], [-1, 0], [-2, 0]])
+      add(theList, [[0, 2], [0, 1], [0, 0], [0, -1], [0, -2]])
+      add(pPieceList[player], theList)
+  end case
+end
+
+on animateDisc spriteNumber
+  repeat with i = 1 to pDiscHeight
+    sprite(spriteNumber).locV = sprite(spriteNumber).locV + 1
+    updateStage()
+  end repeat
+end
+
+on spinMeter groupFormed, theLength, player
+  startPower = gSpinMeter[player]
+  sprite(8).visible = 1
+  sprite(9).visible = 1
+  currentMs = _system.milliSeconds
+  if currentMs > (pLastSpinTime[player] + pSpinDecay[player]) then
+    if gSpinMeter[player] > 0 then
+      gSpinMeter[player] = gSpinMeter[player] - 1
+    end if
+    pLastSpinTime[player] = currentMs
+  end if
+  if groupFormed = 1 then
+    if pChain[player] > 0 then
+      gLastSpin[player] = pChain[player] * (pStandardSpin + ((theLength - pGroupSize) * pBonusSpin))
+      gLastSpin[player] = gAttackRingChain[player] * gLastSpin[player]
+    else
+      if pConsecutive[player] > 0 then
+        gLastSpin[player] = gLastSpin[player] + pStandardSpin + ((theLength - pGroupSize) * pBonusSpin)
+        gLastSpin[player] = gAttackRingConsec[player] * gLastSpin[player]
+      else
+        gLastSpin[player] = pStandardSpin + ((theLength - pGroupSize) * pBonusSpin)
+        gLastSpin[player] = gAttackRingCombo[player] * gLastSpin[player]
+      end if
+    end if
+    gLastSpin[player] = gLastSpin[player] * gWeightDiscMass[player]
+    put "lastspin " & gLastSpin[player]
+    gSpinMeter[player] = gSpinMeter[player] + gLastSpin[player]
+  end if
+  if groupFormed = 2 then
+    gSpinMeter[player] = gSpinMeter[player] + (theLength * pADBonusSpin)
+  end if
+  if gTestMode = 1 then
+    tempString = member("lastText" & player).text
+    if groupFormed <> 0 then
+      member("lastText" & player).text = tempString & "Last power: " & gSpinMeter[player] - startPower
+    end if
+  end if
+  if player = 1 then
+    spinSprite = 8
+  else
+    spinSprite = 9
+  end if
+  if gSpinMeter[player] < 100 then
+    sprite(spinSprite).width = pSpinMax * gSpinMeter[player] / 100
+  else
+    sprite(spinSprite).width = pSpinMax
+  end if
+  if g2Play = 0 then
+    sprite(8).loc = point(404, 517)
+    sprite(8).height = 19
+    if gSpinMeter[player] < 100 then
+      sprite(8).locH = 245 + (pSpinMax * gSpinMeter[player] / 100) - (pSpinMax * gSpinMeter[player] / 200)
+    else
+      sprite(8).locH = 245 + (pSpinMax * 100 / 100) - (pSpinMax * 100 / 200)
+    end if
+  else
+    if player = 1 then
+      if gSpinMeter[player] < 100 then
+        sprite(8).locH = 434 + (pSpinMax * gSpinMeter[player] / 100) - (pSpinMax * gSpinMeter[player] / 200)
+      else
+        sprite(8).locH = 434 + (pSpinMax * 100 / 100) - (pSpinMax * 100 / 200)
+      end if
+      sprite(8).locV = 518
+      sprite(8).height = 19
+    else
+      if gSpinMeter[player] < 100 then
+        sprite(9).locH = 46 + (pSpinMax * gSpinMeter[player] / 100) - (pSpinMax * gSpinMeter[player] / 200)
+      else
+        sprite(9).locH = 46 + (pSpinMax * 100 / 100) - (pSpinMax * 100 / 200)
+      end if
+      sprite(9).locV = 518
+      sprite(9).height = 19
+    end if
+  end if
+end
+
+on dropNewPiece me, player
+  if gTutorial = 0 then
+    pPieceType[player] = random(pPieceList[player].count)
+  else
+    pPieceType[player] = 1
+  end if
+  gClustersDropped[player] = gClustersDropped[player] + 1
+  discColourList = [:]
+  pPieceSprites[player] = []
+  numSpritesNeeded = pPieceList[player][pPieceType[player]][1].count
+  repeat with a = 1 to 10
+    sprite(360 + a).width = pDiscWidth + 4
+    sprite(360 + a).height = pDiscHeight + 4
+  end repeat
+  if gBBmeter[player] > 6 then
+    gBBmeter[player] = 6
+  end if
+  numAttackDiscs = (gBBmeter[player] + 1) / 2
+  attackDiscPos = numSpritesNeeded - numAttackDiscs
+  repeat while pPieceSprites[player].count < numSpritesNeeded
+    if (gAttackDisc[player] > 0) and (pPieceSprites[player].count = attackDiscPos) then
+      pAttackType[player] = gAttackDisc[player]
+      gAttackDisc[player] = 0
+      gBBmeter[player] = 0
+      repeat with i = 1 to numAttackDiscs
+        usedDisc = 1
+        inTheList = 1
+        repeat while (usedDisc <> 0) and (inTheList <> 0)
+          ranAttackDisc = random(10) + 460
+          usedDisc = pActiveDiscs[1].getPos(ranAttackDisc) + pActiveDiscs[2].getPos(ranAttackDisc)
+          inTheList = pPieceSprites[1].getPos(ranAttackDisc) + pPieceSprites[2].getPos(ranAttackDisc)
+        end repeat
+        sprite(ranAttackDisc).member = "attackDisc" & pAttackType[player]
+        add(pPieceSprites[player], ranAttackDisc)
+        add(pActiveDiscs[player], ranAttackDisc)
+        put "DERTY" & sprite(ranAttackDisc).width & sprite(ranAttackDisc).height
+      end repeat
+      next repeat
+    end if
+    ranPieceChoose = random(300) + pFirstSprite - 1
+    ranColour = random(pNumColours)
+    case ranColour of
+      1:
+        ranColourName = "red"
+      2:
+        ranColourName = "yellow"
+      3:
+        ranColourName = "blue"
+      4:
+        ranColourName = "green"
+      5:
+        ranColourName = "purple"
+      6:
+        ranColourName = "orange"
+      7:
+        ranColourName = "coal"
+    end case
+    if gTutorial > 0 then
+      case gTutorialNum of
+        0:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "red"
+            1:
+              ranColourName = "blue"
+            2:
+              ranColourName = "red"
+          end case
+        1:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "red"
+            1:
+              ranColourName = "blue"
+            2:
+              ranColourName = "red"
+          end case
+        2:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "red"
+            1:
+              ranColourName = "blue"
+            2:
+              ranColourName = "blue"
+          end case
+        3:
+          case pTempVar1 of
+            0:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "blue"
+                1:
+                  ranColourName = "red"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 1
+              end case
+            1:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "red"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 2
+              end case
+            2:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "green"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "blue"
+                  pTempVar1 = 0
+              end case
+          end case
+        4:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "blue"
+            1:
+              ranColourName = "blue"
+            2:
+              ranColourName = "red"
+          end case
+        5:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "green"
+            1:
+              ranColourName = "green"
+            2:
+              ranColourName = "blue"
+          end case
+        6:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "red"
+            1:
+              ranColourName = "red"
+            2:
+              ranColourName = "blue"
+          end case
+        otherwise:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "red"
+            1:
+              ranColourName = "blue"
+            2:
+              ranColourName = "red"
+          end case
+      end case
+    end if
+    if gBonusRound > 0 then
+      stageType = gBonusRound mod 6
+      if stageType = 0 then
+        stageType = 6
+      end if
+      case stageType of
+        1:
+          case pTempVar1 of
+            0:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "green"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "blue"
+                  pTempVar1 = 1
+              end case
+            1:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 2
+              end case
+            2:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "blue"
+                  pTempVar1 = 0
+              end case
+          end case
+        2:
+          case pTempVar1 of
+            0:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 1
+              end case
+            1:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 2
+              end case
+            2:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "yellow"
+                2:
+                  ranColourName = "blue"
+                  pTempVar1 = 0
+              end case
+          end case
+        3:
+          case pTempVar1 of
+            0:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "red"
+                1:
+                  ranColourName = "yellow"
+                2:
+                  ranColourName = "yellow"
+                  pTempVar1 = 1
+              end case
+            1:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "yellow"
+                2:
+                  ranColourName = "purple"
+                  pTempVar1 = 2
+              end case
+            2:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "red"
+                1:
+                  ranColourName = "purple"
+                2:
+                  ranColourName = "purple"
+                  pTempVar1 = 3
+              end case
+            3:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "red"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 4
+              end case
+            4:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "red"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 5
+              end case
+            5:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "red"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 0
+              end case
+          end case
+        4:
+          case pTempVar1 of
+            0:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "purple"
+                  pTempVar1 = 1
+              end case
+            1:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "purple"
+                  pTempVar1 = 2
+              end case
+            2:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 3
+              end case
+            3:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 4
+              end case
+            4:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "blue"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 5
+              end case
+            5:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "blue"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 6
+              end case
+            6:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "blue"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 7
+              end case
+            7:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "blue"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 0
+              end case
+          end case
+        5:
+          case pTempVar1 of
+            0:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "coal"
+                1:
+                  ranColourName = "coal"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 1
+              end case
+            1:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "red"
+                1:
+                  ranColourName = "coal"
+                2:
+                  ranColourName = "coal"
+                  pTempVar1 = 2
+              end case
+            2:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "green"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "yellow"
+                  pTempVar1 = 3
+              end case
+            3:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "green"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 4
+              end case
+            4:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "coal"
+                1:
+                  ranColourName = "coal"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 5
+              end case
+            5:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "coal"
+                1:
+                  ranColourName = "coal"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 6
+              end case
+            6:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "green"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "blue"
+                  pTempVar1 = 0
+              end case
+          end case
+        6:
+          case pTempVar1 of
+            0:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "blue"
+                1:
+                  ranColourName = "red"
+                2:
+                  ranColourName = "red"
+                  pTempVar1 = 1
+              end case
+            1:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "green"
+                1:
+                  ranColourName = "blue"
+                2:
+                  ranColourName = "blue"
+                  pTempVar1 = 2
+              end case
+            2:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "yellow"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 3
+              end case
+            3:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "orange"
+                2:
+                  ranColourName = "coal"
+                  pTempVar1 = 4
+              end case
+            4:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "purple"
+                1:
+                  ranColourName = "orange"
+                2:
+                  ranColourName = "coal"
+                  pTempVar1 = 5
+              end case
+            5:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "blue"
+                1:
+                  ranColourName = "red"
+                2:
+                  ranColourName = "blue"
+                  pTempVar1 = 6
+              end case
+            6:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "yellow"
+                  pTempVar1 = 7
+              end case
+            7:
+              case pPieceSprites[player].count of
+                0:
+                  ranColourName = "yellow"
+                1:
+                  ranColourName = "green"
+                2:
+                  ranColourName = "green"
+                  pTempVar1 = 0
+              end case
+          end case
+        otherwise:
+          case pPieceSprites[player].count of
+            0:
+              ranColourName = "red"
+            1:
+              ranColourName = "blue"
+            2:
+              ranColourName = "red"
+          end case
+      end case
+    end if
+    sameColoursUsed = getaProp(discColourList, ranColourName)
+    inTheList = pPieceSprites[player].getPos(ranPieceChoose)
+    usedDisc = pActiveDiscs[1].getPos(ranPieceChoose) + pActiveDiscs[2].getPos(ranPieceChoose)
+    if (usedDisc = 0) and (sameColoursUsed < pMaxSameDiscs) and (inTheList = 0) then
+      add(pPieceSprites[player], ranPieceChoose)
+      add(pActiveDiscs[player], ranPieceChoose)
+      sprite(ranPieceChoose).member = ranColourName
+      setaProp(discColourList, sprite(ranPieceChoose).member.name, sameColoursUsed + 1)
+    end if
+  end repeat
+  updateBBMeter(me, player)
+  pPieceLoc[player] = duplicate(pEntryLocation[player])
+  if (pExtraShapes[player] = 1) and (gTutorial = 0) then
+    pPieceOrientation[player] = random(pPieceList[player][pPieceType[player]].count)
+  else
+    if gBonusRound > 0 then
+      pPieceOrientation[player] = 2
+      pPieceLoc[player] = duplicate(pEntryLocation[player])
+      repeat with i = 1 to pDiscHeight
+        pPieceLoc[player].locV = pPieceLoc[player].locV + 1
+        drawPiece(me, player)
+      end repeat
+    else
+      pPieceOrientation[player] = 1
+    end if
+  end if
+  drawPiece(me, player)
+end
+
+on keyUp me
+  if gTestMode = 1 then
+    case the keyCode of
+      25:
+        gBBmeter[1] = 2
+        updateBBMeter(me, 1)
+        gBBmeter[2] = 5
+        updateBBMeter(me, 2)
+      18:
+        playSound(0, "wow-voc.wav")
+        BBdiscH[1] = pEntryLocation[1].locH
+      19:
+        gScore[1] = gScore[1] + 8888
+        showScore(me, 1)
+      20:
+        gSpinMeter[1] = 110
+      21:
+        gTutorialNum = 5
+      23:
+        put "me"
+      22:
+        if gBBmeter[1] = 0 then
+          gBBmeter[1] = gBBmeter[1] + 1
+        end if
+        gAttackDisc[1] = 1
+        playSound(0, "apb-voc.wav")
+      26:
+        gScore[2] = gScore[2] + 8888
+        showScore(me, 2)
+      28:
+        pPieceLoc[1].locV = pCeiling[1]
+        checkGameEnd(me, 1)
+      29:
+        pActiveDiscs[1] = []
+      50:
+        pLowFPS = 1000
+    end case
+  end if
+  if (the keyCode = 36) or (the keyCode = 76) then
+    if (sprite(753).locV > 0) and (sprite(753).locV < 600) then
+      sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+      if gState = 0 then
+        gState = 1
+      else
+        gState = 0
+        repeat with a = 749 to 760
+          sprite(a).loc = point(0, 850)
+        end repeat
+      end if
+      sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+    else
+      if (sprite(754).locV > 0) and (sprite(754).locV < 600) then
+        sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+        if gState = 0 then
+          gState = 1
+        else
+          gState = 0
+          gNextEvent = 1
+          repeat with a = 749 to 770
+            sprite(a).loc = point(0, 850)
+          end repeat
+        end if
+        sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+      else
+        if (sprite(763).locV > 0) and (sprite(763).locV < 600) then
+          text1 = member("Name").text
+          if (text1 <> "Enter_YTV_username") or (text1.length > 0) then
+            len = member("Name").text.length
+            tempText = member("Name").text
+            repeat with i = 1 to len
+              search = charToNum(tempText.char[i])
+              enterLoc = i
+              if (search = 3) or (search = 13) then
+                exit repeat
+              end if
+            end repeat
+            seg1 = chars(tempText, 1, enterLoc - 1)
+            seg2 = chars(tempText, enterLoc + 1, len)
+            member("Name").text = seg1 & seg2
+          end if
+          CRLF = numToChar(13) & numToChar(10)
+          CR = numToChar(13)
+          text1 = member("Name").text
+          if (text1 = "Enter_YTV_username") or (text1.length < 5) or (text1.length > 20) then
+            sound(7).playFile(_movie.path & "sound\" & "warning.wav")
+            l1 = "Congratulations!"
+            l2 = "You've earned yourself a SiteKick™ Chip for your YTV.com SiteKick™!"
+            l3 = "Enter your SiteKick™ Username below to get your CHIP CODE, or if you don't have a SiteKick™ Username yet, go to:"
+            l4 = " "
+            l5 = "...then come back here and enter your new username."
+            l6 = "Enter a YTV username, between 5 and 20 letters, no spaces. Double check before clicking NEXT...if you enter the wrong name, the code won’t work! "
+            member("tutorialTitle").text = l1
+            member("tutorialText").text = l2 & l3 & CR & l4 & CR & l5 & CRLF & l6
+            member("Name").text = EMPTY
+          else
+            gCodeMgr.Encrypt()
+            sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+            sprite(761).member = "tutNextButOver2"
+            sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+            line1 = "Your top secret CHIP CODE is below. Go to:"
+            line1a = " "
+            line2 = "...and enter this code:"
+            line3 = "...in the 'secret code' box at the bottom of the 'chip dock'."
+            line4 = " When you do, you'll be awarded a surprise SiteKick™ Chip!"
+            line5 = " If you're not a member of YTV.com, don't worry..."
+            line6 = "you'll be given a chance to sign up... it's FREE."
+            line7 = "Your top secret code is below. It is CASE-SENSITIVE, so copy it down exactly (and don’t confuse #1 with lowercase ‘L’, zero with capital ‘O’, or ‘v’ with ‘u’. This code is YOURS, and yours alone. It only will work with the username you entered. Finally, you can only use it once…so think twice before trading your chips!"
+            line7a = " "
+            line8 = "Go to... "
+            line9 = "...and enter your code into the 'secret code' box."
+            member("tutorialText").text = line7 & CR & line7a & CR & CRLF & line8 & CRLF & line9
+            sprite(767).loc = point(400, 300 + 20 - 7)
+            sprite(762).loc = point(180 - 50, 255 + 37 - 29)
+            sprite(760).loc = point(-100, -100)
+            sprite(768).loc = point(0, -100)
+            sprite(769).width = 650
+            sprite(769).loc = point(75, 170 + 182)
+            sprite(761).loc = point(395, 425)
+            sprite(763).loc = point(0, -100)
+          end if
+        else
+          if (sprite(761).locV > 0) and (sprite(761).locV < 600) and ((sprite(761).member.name = "tutNextButNorm2") or (sprite(761).member.name = "tutNextButOver2")) then
+            sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+            if gState = 0 then
+              gState = 1
+            else
+              gState = 0
+              gNextEvent = 1
+              repeat with a = 749 to 770
+                sprite(a).loc = point(0, 850)
+              end repeat
+            end if
+            sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+          end if
+        end if
+      end if
+    end if
+  else
+    if the keyCode = 53 then
+      resetAll(me)
+      go("home")
+    end if
+  end if
+end
+
+on drawPiece me, player
+  repeat with i = 1 to pPieceSprites[player].count
+    theX = pPieceList[player][pPieceType[player]][pPieceOrientation[player]][i][1] * pDiscWidth
+    theY = pPieceList[player][pPieceType[player]][pPieceOrientation[player]][i][2] * pDiscHeight
+    sprite(pPieceSprites[player][i]).loc = pPieceLoc[player] + point(theX, theY)
+  end repeat
+end
+
+on movePiecesDown me, player, mType
+  discList = []
+  testagain = 1
+  repeat while testagain = 1
+    testagain = 0
+    repeat with i in pActiveDiscs[player]
+      if sprite(i).locV >= pFloor[player] then
+        next repeat
+      end if
+      canMove = 1
+      repeat with j in pActiveDiscs[player]
+        if i = j then
+          next repeat
+        end if
+        if sprite(j).locV >= pFloor[player] then
+        end if
+        if (sprite(i).locH = sprite(j).locH) and (sprite(j).locV = (sprite(i).locV + 32)) then
+          canMove = 0
+          exit repeat
+        end if
+      end repeat
+      if canMove = 1 then
+        if discList.getOne(i) = 0 then
+          discList.add(i)
+        end if
+      end if
+    end repeat
+    if discList.count > 0 then
+      repeat with disc in discList
+        repeat with h = 1 to pDiscHeight
+          sprite(disc).locV = sprite(disc).locV + 1
+          if (offset("dam", sprite(disc).member.name) <> 0) or (sprite(disc).member = "bbdisc") then
+            if (h mod 8) = 0 then
+              updateStage()
+            end if
+            next repeat
+          end if
+          if (h mod 3) = 0 then
+            updateStage()
+          end if
+        end repeat
+      end repeat
+      toggle = 1
+      pDropDiscs[player] = 1
+      if (toggle = 1) and (mType = 0) then
+        return 0
+      else
+        discList = []
+        testagain = 1
+      end if
+      next repeat
+    end if
+    testagain = 0
+  end repeat
+  pDropDiscs[player] = 0
+  return 1
+end
+
+on pauseGame me
+  if gState = 0 then
+    _movie.puppetTempo(0)
+  end if
+  if gState = 1 then
+    gState = 0
+    _movie.puppetTempo(30)
+  end if
+end
+
+on movePiece me, player
+  if pState = 1 then
+    pState = 0
+    gState = 1
+  end if
+  if (pPieceSprites[player].count = 0) and (pPauseGame[player] = 0) then
+    dropNewPiece(me, player)
+  end if
+  if (gState <> 1) and (p2PgameEnd = 1) then
+    gameEnd(me)
+  end if
+  if (gState = 2) and (pPauseGame[player] = 0) then
+    sprite(8).locV = 700
+    sprite(9).locV = 700
+    gameEnd(me)
+  end if
+  if gState <> 1 then
+    spinMeter(0, 0, player)
+  end if
+  modTemp = pFloor[player] mod pDiscHeight
+  if (((sprite(pPieceSprites[player][1]).locV mod pDiscHeight) = modTemp) and (pClusterMoved[player] = 1)) or ((pSmoothDrop = 0) and (gNextEvent = 0)) or (pRunCollision[player] = 1) then
+    pClusterMoved[player] = 0
+    if fallOnPiece(me, player) or hitBottom(me, player) or (pRunCollision[player] = 1) then
+      pRunCollision[player] = 0
+      if pKeysLocked[player] = 0 then
+        p2PClusterMoves[player] = p2PClusterMoves[player] + 1
+        member("Name").text = EMPTY
+        put "FRAMERATE " & pLowFPS
+        pLowFPS = 1000
+        if g2Play = 1 then
+          damageDiscTime(me, player)
+        end if
+      end if
+      pKeysLocked[player] = 1
+      checkGroups = 1
+      repeat while checkGroups = 1
+        if pRemoveList[player].count > 0 then
+          removeDiscs(me, player)
+        end if
+        if pGravity = 1 then
+          if movePiecesDown(me, player, 0) = 0 then
+            exit repeat
+          end if
+          updateStage()
+        end if
+        if pDamageDiscsH[player].count > 0 then
+          dropDamageDiscs(me, player)
+          if movePiecesDown(me, player, 0) = 0 then
+            exit repeat
+          end if
+          updateStage()
+        end if
+        if BBdiscH[player] > 0 then
+          dropBBdisc(BBdiscH[player], player)
+          BBdiscH[player] = 0
+          if movePiecesDown(me, player, 0) = 0 then
+            exit repeat
+          end if
+          updateStage()
+        end if
+        if pAttackType[player] > 0 then
+          attackDiscs = 0
+          attackDiscs = checkAttackDiscs(me, player)
+        end if
+        if ((gTutorial = 0) or (gTutorialNum = 5)) and (attackDiscs = 0) then
+          if checkForSummons(me, player) = 1 then
+            checkGroups = 1
+          else
+            checkGroups = checkForGroups(me, player)
+          end if
+        else
+          if attackDiscs = 0 then
+            checkGroups = checkForGroups(me, player)
+          end if
+        end if
+        if gTutorial = 1 then
+          sprite(8).visible = 1
+          if checkTutorialEvent(me) = 1 then
+            removeDiscs(me, player)
+            gState = 1
+            gNextEvent = 1
+            repeat with a = 750 to 760
+              sprite(a).loc = point(0, 850)
+            end repeat
+            pauseIt(pause1)
+            exit repeat
+          end if
+        end if
+        if pGravity = 1 then
+          if movePiecesDown(me, player, 0) = 0 then
+            exit repeat
+          end if
+          updateStage()
+        end if
+        updateStage()
+        if (checkGroups = 1) or (attackDiscs = 1) then
+          pRunCollision[player] = 1
+          pPauseGame[player] = 1
+          exit
+          next repeat
+        end if
+        pPauseGame[player] = 0
+      end repeat
+      if (pActiveDiscs[player].count = 0) and (gClustersDropped[player] > 1) and (gBonusRound = 0) then
+        gScore[player] = gScore[player] + 500
+        showScore(me, player)
+        if g2Play = 0 then
+          sprite(12).loc = point(400, 300)
+          updateStage()
+          pauseIt(pause3)
+          pauseIt(pause3)
+        end if
+        playSound(0, "boardcleared.wav")
+        sprite(12).loc = point(0, 950)
+        updateStage()
+      end if
+      if gBonusRound > 0 then
+        if (pActiveDiscs[player].count = 0) and (gClustersDropped[player] > 1) then
+          pRunCollision = [0, 0]
+          removeDiscs(me, player)
+          bonusRoundDone(me, "won")
+          showScore(me, player)
+        end if
+      end if
+      if gBonusRound > 0 then
+        if bonusTimer(me) = 1 then
+          pRunCollision = [0, 0]
+          removeDiscs(me, player)
+          bonusRoundDone(me, "lost")
+          showScore(me, player)
+        end if
+      end if
+      if g2Play = 0 then
+        if checkGameEnd(me, player) = 1 then
+          exit
+        end if
+      else
+        if (p2PClusterMoves[1] > 0) and (p2PClusterMoves[2] > 0) then
+          if checkGameEnd(me, player) = 1 then
+            exit
+          end if
+        end if
+      end if
+      if (gSpinMeter[player] >= 100) and (gBonusRound = 0) then
+        if g2Play = 0 then
+          levelUp(me, player)
+        else
+          playSound(0, "levelend.wav")
+          gSpinMeter[player] = 0
+          pAttackBonus[player] = pAttackBonus[player] + 1
+          member("attackBonus" & string(player)).text = "Attack Bonus: " & pAttackBonus[player]
+        end if
+      end if
+      if pDropDiscs[player] = 0 then
+        dropNewPiece(me, player)
+        pKeysLocked[player] = 0
+        pChain[player] = 0
+      end if
+      return 0
+    end if
+  end if
+  if gTutorial = 1 then
+    if gTutorialSkip > 0 then
+      if gTutorialSkip = 2 then
+        gTutorialNum = 6
+      end if
+      gTutorialSkip = 0
+      gNextEvent = 1
+      repeat with a = 750 to 760
+        sprite(a).loc = point(0, 850)
+      end repeat
+    end if
+  end if
+  if gNextEvent = 1 then
+    gNextEvent = 0
+    if gTutorial > 0 then
+      case gTutorialNum of
+        5:
+          gTutorialNum = 6
+          gScore[player] = 0
+          g2Play = 1
+          resetAll(me)
+          go("Play2p")
+        6:
+          gTutorialNum = 0
+          gTutorial = 0
+          gScore[player] = 0
+          sprite(8).visible = 0
+          sprite(9).visible = 0
+          if gRun2P = 0 then
+            g2Play = 0
+            displayTextBox(me, 4)
+            sprite(45).loc = point(0, 800)
+            sprite(46).loc = point(0, 800)
+            sprite(47).loc = point(0, 800)
+            sprite(48).loc = point(0, 800)
+            sprite(49).loc = point(0, 800)
+            if the frame = 40 then
+              resetAll(me)
+              sprite(8).visible = 0
+              gState = 1
+              exit
+            else
+              go("Play1p")
+            end if
+          else
+            g2Play = 1
+            resetAll(me)
+            displayTextBox(me, 4)
+            if the frame = 50 then
+              resetAll(me)
+              sprite(8).visible = 0
+              sprite(9).visible = 0
+              gState = 1
+              exit
+            else
+              go("Play2p")
+            end if
+          end if
+          gState = 1
+          exit
+        otherwise:
+          gTutorialNum = gTutorialNum + 1
+          put "gTutorialNum" & gTutorialNum
+          tempNum = gTutorialNum
+          resetAll(me)
+          gTutorialNum = tempNum
+          tutorialEvents(me)
+      end case
+    end if
+    if gBonusRound > 0 then
+      resetBoard(me)
+      pTempVar1 = 0
+      dropNewPiece(me, player)
+      bonusRoundEvents(me)
+    end if
+  end if
+  if gBonusRound > 0 then
+    bonusTimer(me)
+  end if
+  if pPieceSprites[player].count = 0 then
+    OKmoveDown = 1
+  else
+    a = pActiveDiscs[player].getOne(pPieceSprites[player][1])
+    b = pActiveDiscs[player].getOne(pPieceSprites[player][2])
+    c = pActiveDiscs[player].getOne(pPieceSprites[player][3])
+    if (a = 0) or (b = 0) or (c = 0) then
+      OKmoveDown = 0
+    else
+      OKmoveDown = 1
+    end if
+  end if
+  if (gState <> 1) and (OKmoveDown <> 0) then
+    pClusterMoved[player] = 1
+    if pSmoothDrop = 0 then
+      triedMove = 0
+      triedMove2 = 0
+      repeat with i = 1 to pDiscHeight
+        pPieceLoc[player].locV = pPieceLoc[player].locV + 1
+        drawPiece(me, player)
+        p2PClusterMoves[player] = p2PClusterMoves[player] + 1
+        if g2Play = 0 then
+          if triedMove = 0 then
+            moveType = keyboardInput(me, player)
+            if moveType = "drop" then
+              exit repeat
+            else
+              if moveType <> "none" then
+                triedMove = 1
+              end if
+            end if
+          end if
+        else
+          if triedMove = 0 then
+            moveType = keyboardInput(me, player)
+            if moveType = "drop" then
+              exit repeat
+            else
+              if moveType <> "none" then
+                triedMove = 1
+              end if
+            end if
+          end if
+          if player = 1 then
+            Op = 2
+          else
+            Op = 1
+          end if
+          if (gState <> 1) and (triedMove2 = 0) then
+            if (pDropDiscs[Op] = 0) and (pKeysLocked[Op] = 0) and (pPauseGame[Op] = 0) and (pPieceSprites[Op].count > 0) then
+              moveType = keyboardInput(me, player)
+              if moveType <> "none" then
+                triedMove2 = 1
+              end if
+            end if
+          end if
+        end if
+        if (i mod 2) = 0 then
+          updateStage()
+        end if
+      end repeat
+      updateStage()
+    else
+      if (gFrameCount mod 5) = 0 then
+        pPieceLoc[player].locV = pPieceLoc[player].locV + 1
+        drawPiece(me, player)
+      end if
+    end if
+  else
+    if (gTutorial = 0) and (gState <> 1) then
+      pRunCollision[player] = 1
+    end if
+    put "HERE"
+    return 0
+  end if
+  pChain[player] = 0
+  if (pLogGame = 1) and ((_system.milliSeconds / 1000) > (gTimeStart + 5)) and ((integer(_system.milliSeconds / 1000) mod 5) = 0) then
+    writeTempLog(me)
+  end if
+  if ((_system.milliSeconds / 1000) > (gTimeStart + 5)) and ((integer(_system.milliSeconds / 1000) mod 5) = 0) and (gTestMode = 1) then
+    checkIllegalDiscs(me)
+  end if
+  return 1
+end
+
+on hitBottom me, player
+  repeat with s in pPieceSprites[player]
+    if sprite(s).locV >= pFloor[player] then
+      repeat while sprite(s).locV > pFloor[player]
+        pPieceLoc[player].locV = pPieceLoc[player].locV - 1
+        drawPiece(me, player)
+      end repeat
+      return 1
+    end if
+  end repeat
+  return 0
+end
+
+on fallOnPiece me, player
+  repeat with i in pPieceSprites[player]
+    repeat with s in pActiveDiscs[player]
+      if getOne(pPieceSprites[player], s) then
+        next repeat
+      end if
+      if (sprite(s).locH = sprite(i).locH) and (sprite(s).locV = (sprite(i).locV + pDiscHeight)) then
+        return 1
+      end if
+    end repeat
+  end repeat
+  return 0
+end
+
+on animatedGif gifType
+  pGifTimeStamp = _system.milliSeconds
+  gifName = string(gPlayer[1]) & string(gifType) & "animgif"
+  sprite(35).member = gifName
+  case gifName of
+    "11animgif":
+      pGifTime = 140
+    "12animgif":
+      pGifTime = 140
+    "13animgif":
+      pGifTime = 125
+    "14animgif":
+      pGifTime = 130
+    "21animgif":
+      pGifTime = 110
+    "22animgif":
+      pGifTime = 164
+    "23animgif":
+      pGifTime = 270
+    "24animgif":
+      pGifTime = 160
+    "31animgif":
+      pGifTime = 298
+    "32animgif":
+      pGifTime = 125
+    "33animgif":
+      pGifTime = 135
+    "34animgif":
+      pGifTime = 166
+    "41animgif":
+      pGifTime = 182
+    "42animgif":
+      pGifTime = 182
+    "43animgif":
+      pGifTime = 135
+    "44animgif":
+      pGifTime = 210
+  end case
+  sprite(35).width = 77
+  sprite(35).height = 69
+  sprite(35).rewind()
+  sprite(35).loc = point(293, 108)
+  if gifType = 3 then
+    pGifTime = 220
+    sprite(17).width = 77
+    sprite(17).height = 69
+    sprite(17).rewind()
+    sprite(17).loc = point(293, 108)
+  end if
+end
+
+on checkForGroups me, player
+  theList = []
+  repeat with i in pActiveDiscs[player]
+    theList = []
+    theList.add(i)
+    repeat with j in pActiveDiscs[player]
+      if (i = j) or (theList.getPos(j) <> 0) or ((sprite(i).member.name <> sprite(j).member.name) and (j <= pLastSprite)) or (offset("dam", sprite(j).member.name) <> 0) then
+        next repeat
+      end if
+      if (sprite(j).locV = sprite(i).locV) and (sprite(j).locH = (sprite(i).locH + pDiscWidth)) then
+        theList.add(j)
+        recursiveSearch(theList, j, player)
+        next repeat
+      end if
+      if (sprite(j).locH = sprite(i).locH) and (sprite(j).locV = (sprite(i).locV + pDiscHeight)) then
+        theList.add(j)
+        recursiveSearch(theList, j, player)
+        next repeat
+      end if
+      if (sprite(j).locV = sprite(i).locV) and (sprite(j).locH = (sprite(i).locH - pDiscWidth)) then
+        theList.add(j)
+        recursiveSearch(theList, j, player)
+        next repeat
+      end if
+      if (sprite(j).locH = sprite(i).locH) and (sprite(j).locV = (sprite(i).locV - pDiscHeight)) then
+        theList.add(j)
+        recursiveSearch(theList, j, player)
+        next repeat
+      end if
+    end repeat
+    if theList.count >= pGroupSize then
+      listLength = theList.count
+      if g2Play = 1 then
+        damDiscs = theList.count
+        if damDiscs > 0 then
+          damDiscs = damDiscs + pAttackBonus[player]
+        end if
+        if theList.count > pGroupSize then
+          if player = 1 then
+            beamLoc = sprite(theList[2]).loc
+            sprite(3).member = "HudPanel1_UL_Damage"
+            sprite(14).loc = point(80, 33)
+            fireLaser(me, beamLoc, player)
+            pDamageDiscNum[1] = pDamageDiscNum[1] + damDiscs
+            sprite(14).member.text = string(integer(pDamageDiscNum[1]))
+            opPlayer = 2
+            adjustH = -394 + 18 - 13 - 14
+            repeat with i = 45 to 49
+              sprite(i).visible = 0
+            end repeat
+            sprite(472).visible = 0
+            sprite(57).visible = 0
+            sprite(476).loc = point(9, 75)
+          else
+            beamLoc = sprite(theList[2]).loc
+            sprite(4).member = "HudPanel2_UL_Damage"
+            sprite(15).loc = point(745, 33)
+            fireLaser(me, beamLoc, player)
+            pDamageDiscNum[2] = pDamageDiscNum[2] + damDiscs
+            sprite(15).member.text = string(integer(pDamageDiscNum[2]))
+            opPlayer = 1
+            adjustH = 394 - 18 + 13 + 14
+            repeat with i = 40 to 44
+              sprite(i).visible = 0
+            end repeat
+            sprite(471).visible = 0
+            sprite(58).visible = 0
+            sprite(477).loc = point(677, 75)
+          end if
+          repeat with a = 1 to damDiscs
+            if a <= theList.count then
+              pDamageDiscsH[opPlayer].add(sprite(theList[a]).locH + adjustH)
+              next repeat
+            end if
+            dropPoint = duplicate(pEntryLocation[player])
+            dropPointH = dropPoint.locH - (pDiscWidth * 4) + (random(8) * pDiscWidth)
+            pDamageDiscsH[opPlayer].add(dropPointH + adjustH)
+          end repeat
+          repeat with a = 1 to damDiscs
+            ranColour = random(pNumColours)
+            case ranColour of
+              1:
+                ranColourName = "redDam2"
+              2:
+                ranColourName = "yellowDam2"
+              3:
+                ranColourName = "blueDam2"
+              4:
+                ranColourName = "greenDam2"
+              5:
+                ranColourName = "purpleDam2"
+              6:
+                ranColourName = "orangeDam2"
+              7:
+                ranColourName = "coalDam2"
+            end case
+            pDamageDiscsC[opPlayer].add(ranColourName)
+          end repeat
+        end if
+      end if
+      if (gClustersDropped[player] = (pLastCluster[player] + 1)) and (gGroupsCreated > 0) then
+        pConsecutive[player] = pConsecutive[player] + 1
+        pLastCluster[player] = gClustersDropped[player]
+      else
+        pConsecutive[player] = 0
+        pLastCluster[player] = gClustersDropped[player]
+      end if
+      if pChain[player] > 0 then
+        gLastPoints1 = pChain[player] * (pGroupPoints + ((theList.count - pGroupSize) * pComboPoints))
+        gLastPoints1 = gAttackRingChain[player] * gLastPoints1
+        put "Chain " & pChain[player] & " " & gLastPoints1
+        BBdiscH[player] = 0
+        pNumChains[player] = pNumChains[player] + 1
+        sound(2).volume = 160 + (pChain[player] * 20)
+        playSound(0, "chain.wav")
+        sound(4).volume = pVoiceVolume
+        if (pChain[player] mod 3) <> 0 then
+          playSound(0, "chain-voc.wav")
+        else
+          if gBonusRound = 0 then
+            playSound(0, "cool-voc.wav")
+            BBdiscH[player] = sprite(theList[2]).locH
+          else
+            playSound(0, "chain-voc.wav")
+          end if
+        end if
+        repeat with a = 1 to theList.count
+          sprite(380 + a).locH = sprite(theList[a]).locH
+          sprite(380 + a).locV = sprite(theList[a]).locV
+          updateStage()
+        end repeat
+      else
+        if pConsecutive[player] > 0 then
+          gLastPoints1 = gLastPoints1 + pGroupPoints + ((theList.count - pGroupSize) * pComboPoints)
+          gLastPoints1 = gAttackRingConsec[player] * gLastPoints1
+          pNumConsecutives = pNumConsecutives + 1
+          sound(2).volume = 180 + (pConsecutive[player] * 20)
+          playSound(0, "consecutive.wav")
+          sound(5).volume = pVoiceVolume
+          if (pConsecutive[player] mod 3) <> 0 then
+            playSound(0, "multi-voc.wav")
+          else
+            if gBonusRound = 0 then
+              playSound(0, "wow-voc.wav")
+              BBdiscH[player] = sprite(theList[2]).locH
+            else
+              playSound(0, "multi-voc.wav")
+            end if
+          end if
+          repeat with a = 1 to theList.count
+            sprite(400 + a).locH = sprite(theList[a]).locH
+            sprite(400 + a).locV = sprite(theList[a]).locV
+            updateStage()
+          end repeat
+        else
+          gLastPoints1 = pGroupPoints + ((theList.count - pGroupSize) * pComboPoints)
+          put "me"
+          gLastPoints1 = gAttackRingCombo[player] * gLastPoints1
+          put "zo"
+          sound(2).volume = 160
+          playSound(0, "group.wav")
+          repeat with a = 1 to theList.count
+            sprite(360 + a).locH = sprite(theList[a]).locH
+            sprite(360 + a).locV = sprite(theList[a]).locV
+            updateStage()
+          end repeat
+        end if
+      end if
+      spinMeter(1, listLength, player)
+      if gTestMode = 1 then
+        CRLF = numToChar(13) & numToChar(10)
+        CR = numToChar(13)
+        temp = member("lastText" & player).text
+        t1 = temp.line[1]
+        t2 = temp.line[2]
+        t3 = temp.line[3]
+        t4 = temp.line[4]
+        member("lastText" & player).text = t2 & CR & t3 & CR & t4 & CR & " Last points: " & gLastPoints1
+        sprite(422).loc = point(550, 28)
+        sprite(423).loc = point(50, 28)
+      end if
+      gScore[player] = gScore[player] + gLastPoints1
+      showScore(me, player)
+      if pChain[player] = 0 then
+        pChain[player] = 2
+      else
+        pChain[player] = pChain[player] + 1
+      end if
+      gGroupsCreated = gGroupsCreated + 1
+      if theList.count > pGroupSize then
+        pNumCombos = pNumCombos + 1
+      end if
+      pRemoveList[player] = duplicate(theList)
+      put "me"
+      return 1
+    end if
+  end repeat
+end
+
+on checkForDisc disc, wantedPosition, sameDifferentColour, colour, player
+  repeat with j in pActiveDiscs[player]
+    if sameDifferentColour = 1 then
+      if (j = disc) or (sprite(j).member.name <> colour) then
+        next repeat
+      end if
+    else
+      if (j = disc) or (colour.getPos(sprite(j).member.name) <> 0) then
+        next repeat
+      end if
+    end if
+    case wantedPosition of
+      "right":
+        if (sprite(j).locV = sprite(disc).locV) and (sprite(j).locH = (sprite(disc).locH + pDiscWidth)) then
+          return j
+        end if
+      "below":
+        if (sprite(j).locH = sprite(disc).locH) and (sprite(j).locV = (sprite(disc).locV + pDiscHeight)) then
+          return j
+        end if
+      "left":
+        if (sprite(j).locV = sprite(disc).locV) and (sprite(j).locH = (sprite(disc).locH - pDiscWidth)) then
+          return j
+        end if
+      "above":
+        if (sprite(j).locH = sprite(disc).locH) and (sprite(j).locV = (sprite(disc).locV - pDiscHeight)) then
+          return j
+        end if
+    end case
+  end repeat
+  return 0
+end
+
+on loadSummonsPatterns me
+  pNumSummons = 0
+  pNumAttacks = 0
+  gSummonPatterns = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
+  gAttackPatterns = []
+  repeat with pNumSummons = 1 to 15
+    sumFio = new(xtra("FileIO"))
+    sumFio.openfile(the moviePath & "summons\" & "summon" & string(pNumSummons) & ".sum", 0)
+    if sumFio.status() <> 0 then
+      gSummonPatterns[pNumSummons][1] = 0
+      sumFio.closeFile()
+      sumFio = 0
+      next repeat
+    end if
+    rawFile = sumFio.readFile()
+    sumFio.closeFile()
+    sumFio = 0
+    k = field("k")
+    tempString = baDecryptText(rawFile, "Corus2004")
+    put "me"
+    numLines = value(tempString.line[1])
+    gSummonPatterns[pNumSummons][1] = numLines
+    repeat with i = 2 to numLines
+      gSummonPatterns[pNumSummons][i] = tempString.line[i]
+    end repeat
+    gSummonPatterns[pNumSummons][numLines + 1] = tempString.line[numLines + 1]
+  end repeat
+  put "PNUMSUMMONS " & pNumSummons
+  repeat with pNumAttacks = 1 to 10
+    sumFio = new(xtra("FileIO"))
+    sumFio.openfile(the moviePath & "summons\" & "bbattack" & string(pNumAttacks) & ".att", 0)
+    if sumFio.status() <> 0 then
+      gAttackPatterns[pNumAttacks] = 0
+      sumFio.closeFile()
+      sumFio = 0
+      next repeat
+    end if
+    rawFile = sumFio.readFile()
+    sumFio.closeFile()
+    sumFio = 0
+    tempString = baDecryptText(rawFile, "Corus2004")
+    readALine = tempString.line[1]
+    gAttackPatterns[pNumAttacks] = readALine
+    put "me"
+  end repeat
+  put "PNUMATTACKS " & pNumAttacks
+  repeat with i = 1 to 10
+    member("attackDisc" & i).fileName = the moviePath & "summons\" & string(i) & ".png"
+  end repeat
+end
+
+on checkForSummons me, player
+  repeat with fileNum = 1 to 10
+    disc = []
+    patternExists = value(gSummonPatterns[fileNum][1])
+    if patternExists = 0 then
+      next repeat
+    end if
+    repeat with i in pActiveDiscs[player]
+      disc = []
+      colourList = []
+      disc.add(i)
+      colourList.add(sprite(i).member.name)
+      readALine = EMPTY
+      readALine = gSummonPatterns[fileNum][1]
+      numLines = value(readALine)
+      repeat with j = 2 to numLines
+        temp = gSummonPatterns[fileNum][j]
+        tempList = value(temp)
+        discNum = value(tempList[1])
+        alignIt = tempList[2]
+        sameDif = value(tempList[3])
+        col = tempList[4]
+        discExists = checkForDisc(disc[j - 1], alignIt, sameDif, col, player)
+        if (discExists <> 0) and (discExists <= pLastSprite) and (offset("dam", sprite(discExists).member.name) = 0) then
+          disc.add(discExists)
+          colourList.add(sprite(discExists).member.name)
+          next repeat
+        end if
+        exit repeat
+      end repeat
+      if disc.count >= numLines then
+        gAttackDisc[player] = value(gSummonPatterns[fileNum][numLines + 1])
+        if gBBmeter[player] = 0 then
+          gBBmeter[player] = 1
+        end if
+        listLength = disc.count
+        repeat with a = 1 to disc.count
+          sprite(360 + a).locH = sprite(disc[a]).locH
+          sprite(360 + a).locV = sprite(disc[a]).locV
+          gScore[player] = gScore[player] + pADBonusPoints
+          updateStage()
+        end repeat
+        pauseIt(pause3)
+        playSound(0, "apb.wav")
+        playSound(0, "apb-voc.wav")
+        spinMeter(2, listLength, player)
+        showScore(me, player)
+        repeat with a = 1 to disc.count
+          sprite(360 + a).locV = -100
+        end repeat
+        pRemoveList[player] = duplicate(disc)
+        return 1
+      end if
+    end repeat
+  end repeat
+end
+
+on checkAttackDiscs me, player
+  theList = []
+  repeat with attackDisc = 461 to 470
+    if sprite(attackDisc).locV < 0 then
+      next repeat
+    end if
+    if pActiveDiscs[player].getPos(attackDisc) = 0 then
+      next repeat
+    end if
+    theList = []
+    theList.add(attackDisc)
+    colourz = []
+    colourz.add(sprite(attackDisc).member.name)
+    landedOn = checkForDisc(attackDisc, "below", 0, colourz, player)
+    landedOnColour = sprite(landedOn).member.name
+    put "Attack Disc " & attackDisc
+    put "LandON " & landedOn
+    put "LOC " & landedOnColour
+    repeat with aDisc in pActiveDiscs[player]
+      gTest = gAttackPatterns[pAttackType[player]]
+      gTargetDisc = value(gTest)
+      baseValues = (aDisc <= pLastSprite) and (attackDisc <> aDisc) and (offset("dam", sprite(aDisc).member.name) = 0)
+      if (gTargetDisc = 1) and (baseValues = 1) then
+        theList.add(aDisc)
+      end if
+    end repeat
+    if theList.count > 0 then
+      listLength = theList.count
+      playSound(0, "attackDiscHit.wav")
+      listLength = theList.count
+      repeat with a = 1 to theList.count
+        sprite(360 + a).locH = sprite(theList[a]).locH
+        sprite(360 + a).locV = sprite(theList[a]).locV
+        gScore[player] = gScore[player] + pADBonusPoints
+        updateStage()
+      end repeat
+      spinMeter(2, listLength, player)
+      showScore(me, player)
+      pRemoveList[player] = duplicate(theList)
+      return 1
+    end if
+  end repeat
+end
+
+on addBBdiscs theList, player
+  repeat with i in theList
+    repeat with j = 441 to 460
+      if sprite(j).locV < 0 then
+        next repeat
+      end if
+      if (sprite(j).locV = sprite(i).locV) and (sprite(j).locH = (sprite(i).locH + pDiscWidth)) then
+        if theList.getPos(j) = 0 then
+          theList.add(j)
+          gBBmeter[player] = gBBmeter[player] + 1
+        end if
+      end if
+      if (sprite(j).locH = sprite(i).locH) and (sprite(j).locV = (sprite(i).locV + pDiscHeight)) then
+        if theList.getPos(j) = 0 then
+          theList.add(j)
+          gBBmeter[player] = gBBmeter[player] + 1
+        end if
+      end if
+      if (sprite(j).locV = sprite(i).locV) and (sprite(j).locH = (sprite(i).locH - pDiscWidth)) then
+        if theList.getPos(j) = 0 then
+          theList.add(j)
+          gBBmeter[player] = gBBmeter[player] + 1
+        end if
+      end if
+      if (sprite(j).locH = sprite(i).locH) and (sprite(j).locV = (sprite(i).locV - pDiscHeight)) then
+        if theList.getPos(j) = 0 then
+          theList.add(j)
+          gBBmeter[player] = gBBmeter[player] + 1
+        end if
+      end if
+    end repeat
+  end repeat
+  put "gBBmeter[player] " & gBBmeter[player]
+  return theList
+end
+
+on updateBBMeter me, player
+  xSpace = 40
+  ySpace = 35
+  if g2Play = 0 then
+    xp = 561
+    yp = 28
+    s = 24
+  else
+    if player = 1 then
+      xp = 561
+      yp = 28
+      s = 24
+    else
+      xp = 157
+      yp = 28
+      s = 18
+    end if
+  end if
+  case gBBmeter[player] of
+    0:
+      sprite(s).loc = point(-50, -50)
+      sprite(s + 1).loc = point(-50, -50)
+      sprite(s + 2).loc = point(-50, -50)
+      sprite(s + 3).loc = point(-50, -50)
+      sprite(s + 4).loc = point(-50, -50)
+      sprite(s + 5).loc = point(-50, -50)
+    1:
+      sprite(s).loc = point(xp, yp)
+      sprite(s + 1).loc = point(-50, -50)
+      sprite(s + 2).loc = point(-50, -50)
+      sprite(s + 3).loc = point(-50, -50)
+      sprite(s + 4).loc = point(-50, -50)
+      sprite(s + 5).loc = point(-50, -50)
+    2:
+      sprite(s).loc = point(xp, yp)
+      sprite(s + 1).loc = point(xp + xSpace, yp)
+      sprite(s + 2).loc = point(-50, -50)
+      sprite(s + 3).loc = point(-50, -50)
+      sprite(s + 4).loc = point(-50, -50)
+      sprite(s + 5).loc = point(-50, -50)
+    3:
+      sprite(s).loc = point(xp, yp)
+      sprite(s + 1).loc = point(xp + xSpace, yp)
+      sprite(s + 2).loc = point(xp + (xSpace * 2), yp)
+      sprite(s + 3).loc = point(-50, -50)
+      sprite(s + 4).loc = point(-50, -50)
+      sprite(s + 5).loc = point(-50, -50)
+    4:
+      sprite(s).loc = point(xp, yp)
+      sprite(s + 1).loc = point(xp + xSpace, yp)
+      sprite(s + 2).loc = point(xp + (xSpace * 2), yp)
+      sprite(s + 3).loc = point(xp, yp + ySpace)
+      sprite(s + 4).loc = point(-50, -50)
+      sprite(s + 5).loc = point(-50, -50)
+    5:
+      sprite(s).loc = point(xp, yp)
+      sprite(s + 1).loc = point(xp + xSpace, yp)
+      sprite(s + 2).loc = point(xp + (xSpace * 2), yp)
+      sprite(s + 3).loc = point(xp, yp + ySpace)
+      sprite(s + 4).loc = point(xp + xSpace, yp + ySpace)
+      sprite(s + 5).loc = point(-50, -50)
+    6:
+      sprite(s).loc = point(xp, yp)
+      sprite(s + 1).loc = point(xp + xSpace, yp)
+      sprite(s + 2).loc = point(xp + (xSpace * 2), yp)
+      sprite(s + 3).loc = point(xp, yp + ySpace)
+      sprite(s + 4).loc = point(xp + xSpace, yp + ySpace)
+      sprite(s + 5).loc = point(xp + (xSpace * 2), yp + ySpace)
+    otherwise:
+      sprite(s).loc = point(xp, yp)
+      sprite(s + 1).loc = point(xp + xSpace, yp)
+      sprite(s + 2).loc = point(xp + (xSpace * 2), yp)
+      sprite(s + 3).loc = point(xp, yp + ySpace)
+      sprite(s + 4).loc = point(xp + xSpace, yp + ySpace)
+      sprite(s + 5).loc = point(xp + (xSpace * 2), yp + ySpace)
+  end case
+end
+
+on dropBBdisc h, player
+  jumpOut = 0
+  repeat while jumpOut = 0
+    chooseDisc = random(10) + 440
+    if sprite(chooseDisc).locV < 0 then
+      add(pActiveDiscs[player], chooseDisc)
+      jumpOut = 1
+      next repeat
+    end if
+    jumpOut = 0
+  end repeat
+  sprite(chooseDisc).loc = duplicate(pEntryLocation[player])
+  sprite(chooseDisc).locH = h
+end
+
+on showScore me, player
+  tempString = string(integer(gScore[player]))
+  len = tempString.length
+  if len >= 4 then
+    seg1 = chars(tempString, 1, len - 3)
+    seg2 = chars(tempString, len - 2, len)
+    tempString = seg1 & "," & seg2
+  end if
+  len = tempString.length
+  if len >= 8 then
+    seg1 = chars(tempString, 1, len - 7)
+    seg2 = chars(tempString, len - 6, len)
+    tempString = seg1 & "," & seg2
+  end if
+  member("score" & string(player)).text = tempString
+end
+
+on levelUp me, player
+  movePiecesDown(me, player, 1)
+  bonusDiscList = []
+  repeat with a = 500 to 650
+    sprite(a).height = pDiscHeight
+    sprite(a).width = pDiscWidth
+    sprite(a).visible = 0
+  end repeat
+  a = 500
+  theColumn = pFarLeft
+  repeat while theColumn < (pFarRight + pDiscWidth)
+    bonusDiscList.add(a)
+    hitApiece = 0
+    sprite(a).loc = pEntryLocation[player]
+    sprite(a).locH = theColumn
+    repeat while 1
+      modTemp = pFloor[player] mod pDiscHeight
+      if (sprite(a).locV mod pDiscHeight) = modTemp then
+        repeat with s in pActiveDiscs[player]
+          if (sprite(s).locH = sprite(a).locH) and (sprite(a).locV = (sprite(s).locV - pDiscHeight)) then
+            hitApiece = 1
+            exit repeat
+          end if
+        end repeat
+        if ((sprite(a).locV = (sprite(a - 1).locV - pDiscHeight)) and (sprite(a).locH = sprite(a - 1).locH)) or (hitApiece = 1) or (sprite(a).locV >= pFloor[player]) then
+          exit repeat
+        end if
+      end if
+      sprite(a).locV = sprite(a).locV + pDiscHeight
+    end repeat
+    if sprite(a).locV <= pCeiling[player] then
+      theColumn = theColumn + pDiscWidth
+    end if
+    a = a + 1
+  end repeat
+  put "adasda " & a
+  updateStage()
+  repeat with i = 500 to a - 1
+    sprite(i).visible = 1
+    gScore[player] = gScore[player] + 10
+    showScore(me, player)
+    bonusDiscList.deleteOne(i)
+    updateStage()
+    pauseIt(1)
+  end repeat
+  pauseIt(pause3)
+  repeat with i = 500 to a - 1
+    sprite(i).locV = -100
+  end repeat
+  sprite("levelup").locH = 410
+  sprite("levelup").locV = 220
+  updateStage()
+  pauseIt(pause3)
+  pauseIt(pause3)
+  pauseIt(pause3)
+  playSound(0, "levelend.wav")
+  sprite("levelup").locH = 0
+  sprite("levelup").locV = -400
+  if pNewLevelReset = 1 then
+    resetBoard(me)
+  end if
+  gSpinMeter[player] = 0
+  gStage = gStage + 1
+  if (gTutorial = 0) and ((gStage mod 4) = 0) then
+    sprite(51).member = "HudPanel1bonus_OL"
+    gBonusRound = gStage / 4
+    gNextEvent = 1
+  else
+    gLevel = gLevel + 1
+    if (gLevel mod pStagesNewColour) = 0 then
+      if pNumColours < pNumTotalColours then
+        pNumColours = pNumColours + 1
+      end if
+    end if
+    pSpeed[player] = integer(pSpeed[player] / pLevelSpeedIncrease)
+    pSpeedSmooth = integer(pSpeedSmooth * pLevelSpeedIncrease)
+    put "PSPEED1" & pSpeed[1]
+    if pSmoothDrop = 1 then
+      _movie.puppetTempo(pSpeedSmooth)
+    end if
+    member("levelText").text = "L" & gLevel
+  end if
+  musicPlayer(me, 0)
+end
+
+on musicPlayer me, val
+  if val = 0 then
+    if gMusicVolume > 0 then
+      sound(1).stop()
+      gCurrentMusic = gCurrentMusic + 1
+      if gCurrentMusic = 4 then
+        gCurrentMusic = 1
+      end if
+      musName = member("in-game-0" & string(gCurrentMusic))
+      sound(1).volume = gMusicVolume
+      sound(1).play(musName)
+      sound(1).fadeIn(250)
+    end if
+  else
+    if gMusicVolume > 0 then
+      sound(1).fadeOut(250)
+      musName = member("admin_loop")
+      sound(1).volume = gMusicVolume
+      sound(1).play(musName)
+      sound(1).fadeIn(250)
+      gCurrentMusic = 0
+    end if
+  end if
+  put "musicloaded"
+end
+
+on recursiveSearch theList, v, player
+  i = v
+  repeat with j in pActiveDiscs[player]
+    if (i = j) or (theList.getPos(j) <> 0) or ((sprite(theList[1]).member <> sprite(j).member) and (j <= pLastSprite)) or (offset("dam", sprite(j).member.name) <> 0) then
+      next repeat
+    end if
+    if (sprite(j).locV = sprite(i).locV) and (sprite(j).locH = (sprite(i).locH + pDiscWidth)) then
+      theList.add(j)
+      recursiveSearch(theList, j, player)
+    end if
+    if (sprite(j).locH = sprite(i).locH) and (sprite(j).locV = (sprite(i).locV + pDiscHeight)) then
+      theList.add(j)
+      recursiveSearch(theList, j, player)
+    end if
+    if (sprite(j).locV = sprite(i).locV) and (sprite(j).locH = (sprite(i).locH - pDiscWidth)) then
+      theList.add(j)
+      recursiveSearch(theList, j, player)
+    end if
+    if (sprite(j).locH = sprite(i).locH) and (sprite(j).locV = (sprite(i).locV - pDiscHeight)) then
+      theList.add(j)
+      recursiveSearch(theList, j, player)
+    end if
+  end repeat
+  return theList
+end
+
+on checkGameEnd me, player
+  if g2Play = 0 then
+    if pPieceLoc[player].locV <= pCeiling[player] then
+      if gBonusRound > 0 then
+        pRunCollision = [0, 0]
+        removeDiscs(me, player)
+        bonusRoundDone(me, "end")
+      else
+        if gTutorial > 0 then
+          playSound(0, "pause.wav")
+          displayTextBox(me, 1)
+          gTutorialNum = gTutorialNum - 1
+          gNextEvent = 0
+          resetBoard(me, player)
+          return 1
+        else
+          gGameEndedNormal = 1
+          sprite(475).loc = point(400, 300)
+          playSound(0, "gameover.wav")
+          updateStage()
+          musicPlayer(me, 1)
+          pauseIt(pause3)
+          gLastScore1p = integer(gScore[1])
+          gLastLevel1p = gLevel
+          gameEnd(me)
+        end if
+      end if
+    end if
+  else
+    if player = 1 then
+      opPlayer = 2
+    else
+      opPlayer = 1
+    end if
+    if pPieceLoc[player].locV <= pCeiling[player] then
+      gGameEndedNormal = 1
+      g2Pmatch[opPlayer] = g2Pmatch[opPlayer] + 1
+      if player = 1 then
+        sprite(474).locH = 0
+      else
+        sprite(474).locH = 400
+      end if
+      sprite(474).locV = 300
+      updateStage()
+      pauseIt(pause3)
+      playSound(0, "gameover.wav")
+      sprite(474).locH = -500
+      sprite(474).locV = -500
+      updateStage()
+      g2PlayWinner = opPlayer
+      if g2Pmatch[opPlayer] = 3 then
+        sprite(33).member = string(g2Pmatch[1]) & "wins"
+        sprite(32).member = string(g2Pmatch[2]) & "wins"
+        displayTextBox(me, 3)
+        gLastScoreVS = integer(gScore[opPlayer])
+        gLastLevelVS = gLevel
+        p2PgameEnd = 1
+        resetBoard(me)
+        movePiecesDown(me, 1, 1)
+        movePiecesDown(me, 2, 1)
+      else
+        sprite(33).member = string(g2Pmatch[1]) & "wins"
+        sprite(32).member = string(g2Pmatch[2]) & "wins"
+        displayTextBox(me, 2)
+        resetBoard(me)
+        movePiecesDown(me, 1, 1)
+        movePiecesDown(me, 2, 1)
+        gLevel = gLevel + 1
+        pSpeed[1] = integer(pSpeed[1] / power(pLevelSpeedIncrease, gRank[1]))
+        pSpeed[2] = integer(pSpeed[2] / power(pLevelSpeedIncrease, gRank[2]))
+        put "PSPEED1" & pSpeed[1]
+        put "PSPEED2" & pSpeed[2]
+        member("battleText").text = string(gLevel)
+        if pNumColours < pNumTotalColours then
+          pNumColours = pNumColours + 1
+        end if
+        put "me"
+        musicPlayer(me, 0)
+      end if
+    end if
+  end if
+end
+
+on gameEnd me
+  resetAll(me)
+  if pLogGame = 1 then
+    writeTempLog(me)
+    writeLogFile(me)
+  end if
+  go("Hiscore")
+  abort()
+end
+
+on writeLogFile me
+  oldLog = EMPTY
+  fio = new(xtra("FileIO"))
+  fio.openfile(the moviePath & "bblog.txt", 0)
+  if fio.status() <> 0 then
+    fio.createFile(the moviePath & "bblog.txt")
+    fio.openfile(the moviePath & "bblog.txt", 0)
+    fio.writeString("LOG START")
+    fio.setPosition(0)
+  end if
+  oldLog = fio.readFile()
+  fio.closeFile()
+  fio = 0
+  fio2 = new(xtra("FileIO"))
+  fio2.openfile(the moviePath & "templog.txt", 0)
+  tempLog = fio2.readFile()
+  delete fio2
+  fio2 = 0
+  fio = new(xtra("FileIO"))
+  fio.openfile(the moviePath & "bblog.txt", 0)
+  if fio.status() = 0 then
+    delete fio
+  end if
+  fio.createFile(the moviePath & "bblog.txt")
+  fio.openfile(the moviePath & "bblog.txt", 0)
+  CRLF = numToChar(13) & numToChar(10)
+  newLog = oldLog & tempLog
+  fio.writeString(newLog)
+  fio.closeFile()
+  fio = 0
+end
+
+on writeTempLog me
+  player = 1
+  fio = new(xtra("FileIO"))
+  fio.openfile(the moviePath & "templog.txt", 0)
+  if fio.status() <> 0 then
+    fio.createFile(the moviePath & "templog.txt")
+    fio.openfile(the moviePath & "templog.txt", 0)
+  end if
+  endSeconds = (_system.milliSeconds / 1000) - gTimeStart
+  endMinutes = endSeconds / 60
+  CRLF = numToChar(13) & numToChar(10)
+  if g2Play = 0 then
+    line0 = CRLF & CRLF & "Game ended at: " & _system.date() & " " & _system.time() & " ver:" & _player.applicationName
+  else
+    line0 = CRLF & CRLF & "Game ended at: " & _system.date() & " " & _system.time() & " ver:" & _player.applicationName & " 2Players"
+  end if
+  line1 = CRLF & "Game Time: " & endMinutes & " mins, " & endSeconds & " secs " & "  Level:" & gLevel & " SpeedInc:" & pLevelSpeedIncrease
+  line2 = CRLF & "Your score:" & integer(gScore[player]) & " Total Groups:" & gGroupsCreated & " Total Clusters:" & gClustersDropped[player]
+  line3 = CRLF & "Combos: " & pNumCombos & " Chains: " & pNumChains[player] & " Consecutives: " & pNumConsecutives
+  line4 = CRLF & "Grav:" & pGravity & " Colours:" & pNumColours & " MaxClustCols:" & pMaxSameDiscs & " GroupSize:" & pGroupSize & " xShapes:" & pExtraShapes[player]
+  line5 = CRLF & "Rows:" & pNumRows & " Columns:" & pNumCols & " Cycle:" & pRotateCycle[player] & " SmoothDrop:" & pSmoothDrop & " LevelReset:" & pNewLevelReset
+  if gGameEndedNormal = 1 then
+    line6 = CRLF & "Game ended normally."
+  else
+    line6 = CRLF & "User exited game."
+  end if
+  logText = line0 & line1 & line2 & line3 & line4 & line5 & line6
+  fio.writeString(logText)
+  fio.closeFile()
+  fio = 0
+end
+
+on particleGen numPart, partLocation
+  particlesMade = 0
+  partIndex = 700
+  repeat while particlesMade < numPart
+    if sprite(partIndex).locV < 0 then
+      sprite(partIndex).loc = partLocation
+      sprite(partIndex).rewind()
+      particlesMade = particlesMade + 1
+    end if
+    partIndex = partIndex + 1
+    if partIndex = 721 then
+      partIndex = 700
+    end if
+  end repeat
+end
+
+on exitFrame me
+  if pState = 2 then
+    pState = 0
+    gState = 0
+  end if
+  if gCurrentMusic = 0 then
+    musicPlayer(me, 0)
+  end if
+  gFrameCount = gFrameCount + 1
+  if (gState <> 1) or ((gTutorial > 0) and (gState = 1)) then
+    if (gTutorialNum = 6) and (pDamageDiscsH[2] > 0) and (pTempVar2 = 0) and (pPauseGame[1] = 0) then
+      pTempVar2 = 1
+      drop(me, 2)
+      drawPiece(me, 2)
+      put "gimme"
+    end if
+    if (gState <> 1) and (g2Play = 0) and (pPauseGame[1] = 0) then
+      if (pDropDiscs[1] = 0) and (pKeysLocked[1] = 0) and (pPieceSprites[1].count > 0) then
+        keyboardInput(me, 1)
+      end if
+    end if
+    if (gState <> 1) and (g2Play = 1) then
+      if (pDropDiscs[1] = 0) and (pKeysLocked[1] = 0) and (pPauseGame[1] = 0) and (pPieceSprites[1].count > 0) then
+        keyboardInput(me, 1)
+      end if
+      if (pDropDiscs[2] = 0) and (pKeysLocked[2] = 0) and (pPauseGame[2] = 0) and (pPieceSprites[2].count > 0) then
+        keyboardInput(me, 2)
+      end if
+    end if
+    if pSmoothDrop = 0 then
+      if g2Play = 0 then
+        if (pDropDiscs[1] = 1) and (gState <> 1) then
+          movePiecesDown(me, 1, 0)
+        end if
+        if the ticks > pNextMoveTime[1] then
+          movePiece(me, 1)
+          pNextMoveTime[1] = the ticks + pSpeed[1]
+        else
+          if (pDropDiscs[1] = 1) and (pPauseGame[1] = 0) then
+            movePiecesDown(me, 1, 0)
+          end if
+        end if
+      else
+        if (pDropDiscs[1] = 1) and (gState <> 1) and (pPauseGame[1] = 0) then
+          movePiecesDown(me, 1, 0)
+        end if
+        if (pDropDiscs[2] = 1) and (gState <> 1) and (pPauseGame[2] = 0) then
+          movePiecesDown(me, 2, 0)
+        end if
+        if the ticks > pNextMoveTime[1] then
+          movePiece(me, 1)
+          pNextMoveTime[1] = the ticks + pSpeed[1]
+        else
+          if (pDropDiscs[1] = 1) and (pPauseGame[1] = 1) then
+            movePiecesDown(me, 1, 0)
+          end if
+        end if
+        if the ticks > pNextMoveTime[2] then
+          movePiece(me, 2)
+          pNextMoveTime[2] = the ticks + pSpeed[2]
+        else
+          if (pDropDiscs[2] = 1) and (pPauseGame[2] = 1) then
+            movePiecesDown(me, 2, 0)
+          end if
+        end if
+      end if
+    else
+      movePiece(me, 1)
+      if g2Play = 1 then
+        movePiece(me, 2)
+      end if
+    end if
+  end if
+  if (gFrameNum mod 10) = 0 then
+    repeat with a = 441 to 460
+      if sprite(a).locV < 0 then
+        next repeat
+      end if
+    end repeat
+  end if
+  gFrameNum = gFrameNum + 1
+  if gFrameNum = 2 then
+    fps = integer(gFrameNum / ((the milliSeconds - gStartMilliSeconds) / 1000.0))
+    member("FPS").text = fps & " fps"
+    if (fps < pLowFPS) and (fps > 0) then
+      pLowFPS = fps
+      put "PLOW" & pLowFPS
+      member("FPS2").text = string(pLowFPS) & " Min FPS"
+    end if
+    gStartMilliSeconds = the milliSeconds
+    if gTestMode = 1 then
+      sprite(55).loc = point(5, 1)
+      sprite(56).loc = point(66, 1)
+    end if
+    gFrameNum = 0
+  end if
+  go(the frame)
+end
+
+on keyboardInput me, player
+  if player = 1 then
+    leftkey = 123
+    rightkey = 124
+    upKey = 126
+    downKey = 125
+    dropkey = SPACE
+  else
+    leftkey = 0
+    rightkey = 2
+    upKey = 13
+    downKey = 1
+    dropkey = TAB
+  end if
+  theMove = "none"
+  currentMs = _system.milliSeconds
+  if keyPressed(rightkey) then
+    if (currentMs > (getaProp(pKeyboardmove[player], rightkey) + pKeySpeed)) and not hitOtherPiece(me, pDiscWidth, player) then
+      pPieceLoc[player].locH = pPieceLoc[player].locH + pDiscWidth
+      setaProp(pKeyboardmove[player], rightkey, _system.milliSeconds)
+    end if
+    pushAwayFromEdges(me, player)
+    drawPiece(me, player)
+    if checkForOverlap(me, player) = 1 then
+      pPieceLoc[player].locH = pPieceLoc[player].locH - pDiscWidth
+      pushAwayFromEdges(me, player)
+      drawPiece(me, player)
+    end if
+    theMove = "right"
+  else
+    if keyPressed(leftkey) then
+      if (currentMs > (getaProp(pKeyboardmove[player], leftkey) + pKeySpeed)) and not hitOtherPiece(me, -pDiscWidth, player) then
+        pPieceLoc[player].locH = pPieceLoc[player].locH - pDiscWidth
+        setaProp(pKeyboardmove[player], leftkey, _system.milliSeconds)
+      end if
+      pushAwayFromEdges(me, player)
+      drawPiece(me, player)
+      if checkForOverlap(me, player) = 1 then
+        pPieceLoc[player].locH = pPieceLoc[player].locH + pDiscWidth
+        pushAwayFromEdges(me, player)
+        drawPiece(me, player)
+      end if
+      theMove = "left"
+    end if
+  end if
+  if keyPressed(upKey) then
+    if (currentMs > (getaProp(pKeyboardmove[player], upKey) + pKeySpeed)) and (pRotateCycle[player] = 0) then
+      pPieceOrientation[player] = pPieceOrientation[player] + 1
+      setaProp(pKeyboardmove[player], upKey, _system.milliSeconds)
+      if pPieceOrientation[player] > pPieceList[player][pPieceType[player]].count then
+        pPieceOrientation[player] = 1
+      end if
+      push = pushAwayFromEdges(me, player)
+      drawPiece(me, player)
+      if checkForOverlap(me, player) = 1 then
+        pPieceOrientation[player] = pPieceOrientation[player] - 1
+        if pPieceOrientation[player] < 1 then
+          pPieceOrientation[player] = pPieceList[player][pPieceType[player]].count
+        end if
+        pushBackCluster(me, player, push)
+        drawPiece(me, player)
+      end if
+    else
+      if (currentMs > (getaProp(pKeyboardmove[player], upKey) + pKeySpeed)) and (pRotateCycle[player] = 1) then
+        setaProp(pKeyboardmove[player], upKey, _system.milliSeconds)
+        lastDisc = getLast(pPieceSprites[player])
+        deleteAt(pPieceSprites[player], pPieceSprites[player].count)
+        pPieceSprites[player].addAt(1, lastDisc)
+        drawPiece(me, player)
+      else
+        if (currentMs > (getaProp(pKeyboardmove[player], upKey) + pKeySpeed)) and (pRotateCycle[player] = 2) then
+          pPieceOrientation[player] = pPieceOrientation[player] - 1
+          setaProp(pKeyboardmove[player], upKey, _system.milliSeconds)
+          if pPieceOrientation[player] < 1 then
+            pPieceOrientation[player] = pPieceList[player][pPieceType[player]].count
+          end if
+          push = pushAwayFromEdges(me, player)
+          drawPiece(me, player)
+          if checkForOverlap(me, player) = 1 then
+            pPieceOrientation[player] = pPieceOrientation[player] + 1
+            if pPieceOrientation[player] > pPieceList[player][pPieceType[player]].count then
+              pPieceOrientation[player] = 1
+            end if
+            pushBackCluster(me, player, push)
+            drawPiece(me, player)
+          end if
+        end if
+      end if
+    end if
+    theMove = "up"
+  end if
+  if keyPressed(downKey) then
+    if pSmoothDrop = 0 then
+      if (currentMs > (getaProp(pKeyboardmove[player], downKey) + pKeySpeed)) and not (fallOnPiece(me, player) or hitBottom(me, player)) then
+        pPieceLoc[player].locV = pPieceLoc[player].locV + pDiscHeight
+        setaProp(pKeyboardmove[player], downKey, _system.milliSeconds)
+      end if
+      pushAwayFromEdges(me, player)
+      drawPiece(me, player)
+      if checkForOverlap(me, player) = 1 then
+        pPieceLoc[player].locV = pPieceLoc[player].locV - pDiscHeight
+        drawPiece(me, player)
+      end if
+    else
+      modTemp = pFloor[player] mod pDiscHeight
+      if ((sprite(pPieceSprites[player][1]).locV mod pDiscHeight) = modTemp) and (pClusterMoved[player] = 1) then
+        pClusterMoved[player] = 0
+        if fallOnPiece(me, player) or hitBottom(me, player) then
+          exit
+        end if
+      end if
+      pClusterMoved[player] = 1
+      pPieceLoc[player].locV = pPieceLoc[player].locV + 1
+      drawPiece(me, player)
+      updateStage()
+    end if
+    theMove = "down"
+  end if
+  if keyPressed(dropkey) then
+    put "SPACE"
+    if currentMs > (getaProp(pKeyboardmove[player], dropkey) + pKeySpeed) then
+      drop(me, player)
+      drawPiece(me, player)
+      setaProp(pKeyboardmove[player], dropkey, _system.milliSeconds)
+      return "drop"
+    end if
+  end if
+  return theMove
+end
+
+on keyDown2 me
+  player = 1
+  if gState <> 1 then
+    currentMs = _system.milliSeconds
+    case the keyCode of
+      6:
+        if currentMs > (getaProp(pKeyboardmove[player], 6) + pKeySpeed) then
+          lastDisc = getLast(pPieceSprites[player])
+          deleteAt(pPieceSprites[player], pPieceSprites[player].count)
+          pPieceSprites[player].addAt(1, lastDisc)
+        end if
+        drawPiece(me, player)
+      50:
+        writeTempLog(me)
+        writeLogFile(me)
+        go("End")
+        abort()
+      124:
+        if (currentMs > (getaProp(pKeyboardmove[player], 124) + pKeySpeed)) and not hitOtherPiece(me, pDiscWidth, player) then
+          pPieceLoc[player].locH = pPieceLoc[player].locH + pDiscWidth
+          setaProp(pKeyboardmove[player], 124, _system.milliSeconds)
+        end if
+        pushAwayFromEdges(me, player)
+        drawPiece(me, player)
+        if checkForOverlap(me, player) = 1 then
+          pPieceLoc[player].locH = pPieceLoc[player].locH - pDiscWidth
+          pushAwayFromEdges(me, player)
+          drawPiece(me, player)
+        end if
+      123:
+        if (currentMs > (getaProp(pKeyboardmove[player], 123) + pKeySpeed)) and not hitOtherPiece(me, -pDiscWidth, player) then
+          pPieceLoc[player].locH = pPieceLoc[player].locH - pDiscWidth
+          setaProp(pKeyboardmove[player], 123, _system.milliSeconds)
+        end if
+        pushAwayFromEdges(me, player)
+        drawPiece(me, player)
+        if checkForOverlap(me, player) = 1 then
+          pPieceLoc[player].locH = pPieceLoc[player].locH + pDiscWidth
+          pushAwayFromEdges(me, player)
+          drawPiece(me, player)
+        end if
+      126:
+        if (currentMs > (getaProp(pKeyboardmove[player], 126) + pKeySpeed)) and (pRotateCycle[player] = 0) then
+          pPieceOrientation[player] = pPieceOrientation[player] + 1
+          setaProp(pKeyboardmove[player], 126, _system.milliSeconds)
+          if pPieceOrientation[player] > pPieceList[player][pPieceType[player]].count then
+            pPieceOrientation[player] = 1
+          end if
+          pushAwayFromEdges(me, player)
+          drawPiece(me, player)
+          if checkForOverlap(me, player) = 1 then
+            pPieceOrientation[player] = pPieceOrientation[player] - 1
+            if pPieceOrientation[player] < 1 then
+              pPieceOrientation[player] = pPieceList[player][pPieceType[player]].count
+            end if
+            pushAwayFromEdges(me, player)
+            drawPiece(me, player)
+          end if
+        else
+          lastDisc = getLast(pPieceSprites[player])
+          deleteAt(pPieceSprites[player], pPieceSprites[player].count)
+          pPieceSprites[player].addAt(1, lastDisc)
+          drawPiece(me, player)
+        end if
+      125:
+        if pSmoothDrop = 0 then
+          if (currentMs > (getaProp(pKeyboardmove[player], 125) + pKeySpeed)) and not (fallOnPiece(me, player) or hitBottom(me, player)) then
+            pPieceLoc[player].locV = pPieceLoc[player].locV + pDiscHeight
+            setaProp(pKeyboardmove[player], 125, _system.milliSeconds)
+          end if
+          pushAwayFromEdges(me, player)
+          drawPiece(me, player)
+        else
+          repeat with i = 1 to 20
+            if not movePiece(me) then
+              exit
+            end if
+            updateStage()
+          end repeat
+        end if
+    end case
+    case the key of
+      SPACE:
+        drop(me, player)
+        pushAwayFromEdges(me, player)
+        drawPiece(me, player)
+    end case
+  end if
+end
+
+on pushAwayFromEdges me, player
+  repeat with v = 3 to pDiscsInCluster
+    pastLeftEdge = 0
+    pastRightEdge = 0
+    pastTopEdge = 0
+    pastBotEdge = 0
+    repeat with i = 1 to pPieceSprites[player].count
+      x = pPieceLoc[player].locH + (pPieceList[player][pPieceType[player]][pPieceOrientation[player]][i][1] * pDiscWidth)
+      y = pPieceLoc[player].locV + (pPieceList[player][pPieceType[player]][pPieceOrientation[player]][i][2] * pDiscHeight)
+      if x > pRightWall[player] then
+        pastRightEdge = 1
+      end if
+      if x < pLeftWall[player] then
+        pastLeftEdge = 1
+      end if
+      if y > pFloor[player] then
+        pastBotEdge = 1
+      end if
+    end repeat
+    push = "none"
+    if pastRightEdge then
+      pPieceLoc[player].locH = pPieceLoc[player].locH - pDiscWidth
+      push = "left"
+    else
+      if pastLeftEdge then
+        pPieceLoc[player].locH = pPieceLoc[player].locH + pDiscWidth
+        push = "right"
+      end if
+    end if
+    if pastBotEdge then
+      pPieceLoc[player].locV = pPieceLoc[player].locV - pDiscHeight
+      if push = "none" then
+        push = "up"
+        next repeat
+      end if
+      if push = "left" then
+        push = "leftup"
+        next repeat
+      end if
+      if push = "right" then
+        push = "rightup"
+      end if
+    end if
+  end repeat
+  return push
+end
+
+on pushBackCluster me, player, pushType
+  case pushType of
+    "none":
+    "left":
+      pPieceLoc[player].locH = pPieceLoc[player].locH + pDiscWidth
+    "right":
+      pPieceLoc[player].locH = pPieceLoc[player].locH - pDiscWidth
+    "up":
+      pPieceLoc[player].locV = pPieceLoc[player].locV + pDiscHeight
+    "leftup":
+      pPieceLoc[player].locH = pPieceLoc[player].locH + pDiscWidth
+      pPieceLoc[player].locV = pPieceLoc[player].locV + pDiscHeight
+    "rightup":
+      pPieceLoc[player].locH = pPieceLoc[player].locH - pDiscWidth
+      pPieceLoc[player].locV = pPieceLoc[player].locV + pDiscHeight
+  end case
+end
+
+on checkForOverlap me, player
+  repeat with i in pActiveDiscs[player]
+    repeat with j in pActiveDiscs[player]
+      if i = j then
+        next repeat
+      end if
+      if (sprite(j).locH = sprite(i).locH) and (sprite(j).locV = sprite(i).locV) then
+        return 1
+      end if
+      if (sprite(j).locH = sprite(i).locH) and ((sprite(i).locV + pDiscHeight) > sprite(j).locV) and ((sprite(j).locV + pDiscHeight) > sprite(i).locV) then
+        return 1
+      end if
+    end repeat
+  end repeat
+  return 0
+end
+
+on hitOtherPiece me, changeLoc, player
+  repeat with i = 1 to pPieceSprites[player].count
+    thisloc = point(changeLoc, 0) + pPieceLoc[player] + point(pPieceList[player][pPieceType[player]][pPieceOrientation[player]][i][1] * pDiscWidth, pPieceList[player][pPieceType[player]][pPieceOrientation[player]][i][2] * pDiscHeight)
+    repeat with j in pActiveDiscs[player]
+      if getOne(pPieceSprites[player], j) then
+        next repeat
+      end if
+      if sprite(j).loc = thisloc then
+        return 1
+      end if
+    end repeat
+  end repeat
+  return 0
+end
+
+on drop me, player
+  drawPiece(me, player)
+  repeat while 1
+    modTemp = pFloor[player] mod pDiscHeight
+    if (sprite(pPieceSprites[player][1]).locV mod pDiscHeight) = modTemp then
+      if fallOnPiece(me, player) or hitBottom(me, player) then
+        exit
+      end if
+    end if
+    pPieceLoc[player].locV = pPieceLoc[player].locV + 1
+    drawPiece(me, player)
+  end repeat
+  updateStage()
+end
+
+on tutorialEvents me
+  if gTutorialNum = 0 then
+    gTutorialTexts = []
+    tutFio = new(xtra("FileIO"))
+    tutFio.openfile(the moviePath & "data\" & "tutorial-en.txt", 0)
+    readALine = tutFio.readLine()
+    numLines = value(readALine)
+    repeat with i = 1 to numLines
+      tempLine = tutFio.readLine()
+      lineLen = tempLine.length
+      gTutorialTexts[i] = chars(tempLine, 2, lineLen - 1)
+    end repeat
+    tutFio.closeFile()
+    tutFio = 0
+    gTutorialNum = 1
+  end if
+  CRLF = numToChar(13) & numToChar(10)
+  if gTutorialNum > 0 then
+    member("tutorialTitle").text = gTutorialTexts[(gTutorialNum * 2) - 1] & CRLF
+    member("tutorialText").text = gTutorialTexts[gTutorialNum * 2]
+  end if
+  sprite(750).loc = point(150 - 15, 50 + 30)
+  sprite(750).height = 32
+  sprite(751).loc = point(150 - 15, 100 + 30)
+  case gTutorialNum of
+    1:
+      sprite(753).loc = point(600, 230)
+      sprite(757).loc = point(200, 230)
+      sprite(758).loc = point(340, 230)
+      pNumSummons = 0
+      pNumAttacks = 0
+      sprite(752).loc = point(415 - 18, 325)
+      setupTutorialBoard([[0], [0], [0], [rD("r"), rD("r")], [0], [rD("b"), rD("b")], [0], [0], [0]], 1)
+    2:
+      sprite(753).loc = point(600, 300)
+      sprite(757).loc = point(200, 300)
+      sprite(758).loc = point(340, 300)
+      pNumSummons = 0
+      pNumAttacks = 0
+      sprite(755).loc = point(400, 240)
+      setupTutorialBoard([[0], [0], [0], [rD("b"), rD("b")], [0], [rD("b"), rD("b")], [0], [0], [0]], 1)
+    3:
+      sprite(753).loc = point(600, 230)
+      sprite(757).loc = point(200, 230)
+      sprite(758).loc = point(340, 230)
+      pNumSummons = 0
+      pNumAttacks = 0
+      setupTutorialBoard([[0], [0], [rD("b"), rD("b")], [0], [0], [0], [0], [0], [0]], 1)
+    4:
+      sprite(753).loc = point(600, 230)
+      sprite(757).loc = point(200, 230)
+      sprite(758).loc = point(340, 230)
+      pNumSummons = 0
+      pNumAttacks = 0
+      setupTutorialBoard([[rD("r"), rD("r"), rD("b"), rD("b")], [rD("b")], [rD("b")], [rD("r"), rD("r"), rD("b"), rD("b")], [rD("b")], [rD("b")], [rD("r"), rD("r"), rD("b"), rD("b")], [rD("b")], [rD("b")]], 1)
+    5:
+      sprite(753).loc = point(600, 350)
+      sprite(757).loc = point(200, 350)
+      sprite(758).loc = point(340, 350)
+      if pRotateCycle[1] <> 0 then
+        pRotateCycle[1] = 0
+      end if
+      sprite(756).loc = point(415 - 10 - 10, 350 - 60 + 8)
+      setupTutorialBoard([[rD("r"), rD("y")], [rD("y"), rD("g")], [rD("b"), rD("r")], [rD("b"), rD("y")], [0], [rD("p"), rD("y")], [rD("p"), rD("r")], [rD("g"), rD("g")], [rD("y"), rD("y")]], 1)
+    6:
+      sprite(753).loc = point(600, 350)
+      sprite(757).loc = point(200, 350)
+      sprite(758).loc = point(340, 350)
+      sprite(752).loc = point(415 - 18, 440)
+      sprite(752).member = "mockup_tutorailsP2"
+      setupTutorialBoard([[0], [rD("b")], [rD("r"), rD("y")], [rD("r"), rD("b")], [0], [rD("b"), rD("r")], [rD("y"), rD("r")], [rD("b")], [0]], 1)
+  end case
+  gState = 1
+end
+
+on setupTutorialBoard discList, player
+  sprite(8).visible = 0
+  activeDiscs = []
+  theColumn = pFarLeft - pDiscWidth
+  repeat with a = 1 to 9
+    currentColumn = discList[a]
+    theColumn = theColumn + pDiscWidth
+    if currentColumn[1] = 0 then
+      next repeat
+    end if
+    repeat with d in currentColumn
+      hitApiece = 0
+      sprite(d).loc = pEntryLocation[player]
+      sprite(d).locV = sprite(d).locV + (pDiscHeight * 2)
+      sprite(d).locH = theColumn
+      repeat while 1
+        modTemp = pFloor[player] mod pDiscHeight
+        if (sprite(d).locV mod pDiscHeight) = modTemp then
+          repeat with s in pActiveDiscs[player]
+            if (sprite(s).locH = sprite(d).locH) and (sprite(d).locV = (sprite(s).locV - pDiscHeight)) then
+              hitApiece = 1
+              exit repeat
+            end if
+          end repeat
+          if (hitApiece = 1) or (sprite(d).locV >= pFloor[player]) then
+            exit repeat
+          end if
+        end if
+        sprite(d).locV = sprite(d).locV + pDiscHeight
+      end repeat
+    end repeat
+  end repeat
+end
+
+on checkTutorialEvent me
+  player = 1
+  if gTutorial > 0 then
+    case gTutorialNum of
+      1:
+        if gGroupsCreated > 0 then
+          return 1
+        end if
+      2:
+        if pNumCombos > 0 then
+          return 1
+        end if
+      3:
+        if pNumConsecutives > 0 then
+          return 1
+        end if
+      4:
+        if pNumChains[player] > 0 then
+          return 1
+        end if
+      5:
+        if gAttackDisc[player] > 0 then
+          return 1
+        else
+          displayTextBox(me, 1)
+          gTutorialNum = 4
+          return 0
+        end if
+      6:
+        repeat with i in pActiveDiscs[2]
+          isDamageDisc = sprite(i).member.name
+          case isDamageDisc of
+            "redDam2":
+              return 1
+            "greenDam2":
+              return 1
+            "blueDam2":
+              return 1
+            "yellowDam2":
+              return 1
+            "purpleDam2":
+              return 1
+            "orangeDam2":
+              return 1
+            "coalDam2":
+              return 1
+          end case
+        end repeat
+    end case
+  end if
+  if gBonusRound > 0 then
+    case gBonusRound of
+      1:
+        if (pActiveDiscs[player].count = 0) and (gClustersDropped[player] > 1) then
+          return 1
+        end if
+      otherwise:
+        if (pActiveDiscs[player].count = 0) and (gClustersDropped[player] > 1) then
+          return 1
+        end if
+    end case
+  end if
+  return 0
+end
+
+on displayTextBox me, val
+  sprite(751).loc = point(150 - 15, 100 + 30)
+  CRLF = numToChar(13) & numToChar(10)
+  case val of
+    1:
+      member("tutorialText").text = "Oops! Please try again." & CRLF
+    2:
+      if g2PlayWinner = 1 then
+        winnah = "Player 1"
+      else
+        winnah = "Player 2"
+      end if
+      member("tutorialText").text = winnah & " is the winner! Press NEXT to continue." & CRLF
+    3:
+      if g2PlayWinner = 1 then
+        winnah = "Player 1"
+      else
+        winnah = "Player 2"
+      end if
+      member("tutorialText").text = winnah & " is the CHAMP! Great job!" & CRLF
+    4:
+      member("tutorialText").text = "That's all! Press NEXT to play." & CRLF
+    5:
+      member("tutorialText").text = "Get ready! Press NEXT to play." & CRLF
+    otherwise:
+      member("tutorialText").text = "That's all! Press NEXT to play." & CRLF
+  end case
+  sprite(754).loc = point(600, 230)
+  gState = 1
+end
+
+on rD colour
+  player = 1
+  found = 0
+  repeat while found = 0
+    aDisc = random(300) + pFirstSprite - 1
+    case colour of
+      "r":
+        ranColourName = "red"
+      "g":
+        ranColourName = "green"
+      "b":
+        ranColourName = "blue"
+      "y":
+        ranColourName = "yellow"
+      "p":
+        ranColourName = "purple"
+      "o":
+        ranColourName = "orange"
+      "c":
+        ranColourName = "coal"
+    end case
+    inTheList = pActiveDiscs[1].getPos(aDisc) + pActiveDiscs[2].getPos(aDisc)
+    if inTheList = 0 then
+      pActiveDiscs[player].add(aDisc)
+      sprite(aDisc).member = ranColourName
+      found = 1
+    end if
+  end repeat
+  return aDisc
+end
+
+on bonusRoundEvents me
+  sprite(36).loc = point(400, 300)
+  sprite(37).loc = point(650, 120)
+  if gBonusRound = 1 then
+    pBonusRoundTexts = []
+    fio = new(xtra("FileIO"))
+    fio.openfile(the moviePath & "data\" & "bonusRounds-en.txt", 0)
+    readALine = fio.readLine()
+    numLines = value(readALine)
+    repeat with i = 1 to numLines
+      tempLine = fio.readLine()
+      lineLen = tempLine.length
+      pBonusRoundTexts[i] = chars(tempLine, 2, lineLen - 1)
+    end repeat
+    fio.closeFile()
+    fio = 0
+  end if
+  CRLF = numToChar(13) & numToChar(10)
+  stageType = gBonusRound mod 6
+  if stageType = 0 then
+    stageType = 6
+  end if
+  member("tutorialTitle").text = pBonusRoundTexts[(stageType * 2) - 1] & CRLF
+  member("tutorialText").text = pBonusRoundTexts[stageType * 2] & CRLF
+  sprite(750).loc = point(150 - 15, 50 + 30)
+  sprite(750).height = 32
+  sprite(751).loc = point(150 - 15, 100 + 30)
+  sprite(753).loc = point(600, 230)
+  pBonusTimeStart = _system.milliSeconds
+  member("tutorialTitle").text = "Bonus round!" & CRLF
+  member("tutorialText").text = "You must destroy ALL discs on the screen before the timer runs out. You get " & string(gBonusRound * 10000) & " points if you succeed." & CRLF
+  case stageType of
+    1:
+      pBonusTime = 30
+      pBonusTimeMax = 30
+      setupTutorialBoard([[0], [0], [rD("b"), rD("b")], [rD("y"), rD("g"), rD("b"), rD("b")], [rD("g"), rD("y"), rD("g")], [rD("g"), rD("y"), rD("g"), rD("y"), rD("y")], [0], [0], [0]], 1)
+    2:
+      pBonusTime = 35
+      pBonusTimeMax = 35
+      setupTutorialBoard([[0], [0], [rD("y")], [rD("g"), rD("g"), rD("b")], [rD("b"), rD("y"), rD("y"), rD("b"), rD("y")], [rD("g"), rD("g")], [rD("b")], [0], [0]], 1)
+    3:
+      pBonusTime = 40
+      pBonusTimeMax = 40
+      setupTutorialBoard([[0], [rD("p")], [rD("p"), rD("r"), rD("r")], [rD("y")], [rD("r"), rD("r"), rD("y")], [rD("p"), rD("p"), rD("y")], [rD("y")], [rD("r"), rD("p"), rD("p")], [rD("r")]], 1)
+    4:
+      pBonusTime = 45
+      pBonusTimeMax = 45
+      setupTutorialBoard([[rD("b"), rD("b"), rD("p"), rD("p"), rD("b"), rD("b")], [rD("g"), rD("g"), rD("b"), rD("b")], [rD("b"), rD("p")], [rD("b"), rD("p")], [0], [rD("b"), rD("p")], [rD("b"), rD("p")], [rD("g"), rD("g"), rD("b"), rD("b")], [rD("b"), rD("b"), rD("p"), rD("p"), rD("b"), rD("b")]], 1)
+    5:
+      pBonusTime = 50
+      pBonusTimeMax = 50
+      setupTutorialBoard([[rD("r")], [rD("r")], [rD("o")], [rD("o"), rD("r"), rD("r")], [rD("y"), rD("y"), rD("o"), rD("o"), rD("r"), rD("r")], [rD("o"), rD("r"), rD("r")], [rD("o")], [rD("r")], [rD("r")]], 1)
+    6:
+      pBonusTime = 55
+      pBonusTimeMax = 55
+      setupTutorialBoard([[0], [0], [0], [0], [rD("c"), rD("o"), rD("p"), rD("y"), rD("g"), rD("b"), rD("r")], [0], [0], [0], [0]], 1)
+    otherwise:
+      pBonusTime = 10
+      pBonusTimeMax = 10
+      member("tutorialTitle").text = "Bonus round" & CRLF
+      member("tutorialText").text = "You must destroy ALL discs on the screen before the timer runs out." & CRLF
+      setupTutorialBoard([[0], [0], [0], [rD("b"), rD("b")], [rD("y"), rD("g"), rD("b"), rD("b")], [rD("g"), rD("y"), rD("g")], [rD("g"), rD("y"), rD("g"), rD("y"), rD("y")], [0], [0], [0], [0], [0]], 1)
+  end case
+  gState = 1
+end
+
+on bonusRoundDone me, wonLost
+  player = 1
+  CRLF = numToChar(13) & numToChar(10)
+  CR = numToChar(13)
+  case wonLost of
+    "won":
+      chpType = gBonusRound mod 6
+      if chpType = 0 then
+        chpType = 6
+      end if
+      member("Chip").text = "00" & chpType
+      sprite(750).loc = point(150 - 15, 50 + 30)
+      sprite(751).loc = point(150 - 15, 100 + 30)
+      sprite(768).width = 650
+      sprite(768).loc = point(75, 225 - 15)
+      l1 = "Congratulations!"
+      l2 = "You've earned yourself a SiteKick™ Chip for your YTV.com SiteKick™! "
+      l3 = "Enter your SiteKick™ Username below to get your CHIP CODE, or if you don't have a SiteKick™ Username yet, go to:"
+      l4 = " "
+      l5 = "...then come back here and enter your new username."
+      l6 = "Sitekick™ Username (double check before clicking NEXT...if you enter the wrong name, the code won’t work!): "
+      member("tutorialTitle").text = l1
+      member("tutorialText").text = l2 & l3 & CR & l4 & CR & l5 & CRLF & l6
+      gScore[1] = gScore[1] + (10000 * gBonusRound)
+      sprite(760).loc = point(220, 375 - 10)
+      sprite(760).editable = 1
+      member("Name").text = "Enter_YTV_username"
+      _movie.keyboardFocusSprite = 760
+      sprite(761).loc = point(475, 425)
+      sprite(761).member = "tutNextButNorm3"
+      sprite(763).loc = point(315, 425)
+      gState = 1
+    "lost":
+      sprite(751).loc = point(150 - 15, 100 + 30)
+      member("tutorialText").text = "Time expired. Press NEXT to continue." & CRLF
+      sprite(754).loc = point(600, 230)
+      gState = 1
+    "end":
+      sprite(751).loc = point(150 - 15, 100 + 30)
+      member("tutorialText").text = "Better luck next time! Press NEXT to continue." & CRLF
+      sprite(754).loc = point(600, 230)
+      gState = 1
+  end case
+  gBonusRound = 0
+  updateStage()
+  playSound(0, "levelend.wav")
+  resetBoard(me)
+  gSpinMeter = [0, 0]
+  gLevel = gLevel + 1
+  gStage = gStage + 1
+  if (gLevel mod pStagesNewColour) = 0 then
+    if pNumColours < pNumTotalColours then
+      pNumColours = pNumColours + 1
+    end if
+  end if
+  pSpeed[player] = integer(pSpeed[player] / pLevelSpeedIncrease)
+  pSpeedSmooth = integer(pSpeedSmooth * pLevelSpeedIncrease)
+  if pSmoothDrop = 1 then
+    _movie.puppetTempo(pSpeedSmooth)
+  end if
+  member("levelText").text = "L" & gLevel
+  sprite(51).member = "HudPanel1_OL"
+  sprite(16).loc = point(-100, -100)
+  musicPlayer(me, 0)
+end
+
+on bonusTimer me
+  sprite(37).locV = 120
+  sprite(36).locV = 300
+  if gTestMode = 1 then
+    sprite(16).loc = point(360, 150)
+  end if
+  if (gState <> 1) and (pPauseGame[1] = 0) then
+    if _system.milliSeconds >= (pBonusTimeStart + 1000) then
+      if pBonusTime > 0 then
+        pBonusTime = pBonusTime - 1
+      end if
+      pBonusTimeStart = _system.milliSeconds
+    end if
+  end if
+  percent = integer(float(pBonusTime) / pBonusTimeMax * 100)
+  if pBonusTime > 0 then
+    sprite(37).width = pBonusMax * percent / 100
+  else
+    sprite(37).width = 0
+  end if
+  sprite(37).height = 19
+  if pBonusTime > 0 then
+    sprite(37).locH = 731 - (pBonusMax * percent / 100) + (pBonusMax * percent / 200)
+  else
+    sprite(37).locH = 731 - (pBonusMax * 100 / 100) + (pBonusMax * 100 / 200)
+  end if
+  member("bonusCountdown").text = "Time Left: " & pBonusTime
+  if pBonusTime <= 0 then
+    return 1
+  else
+    return 0
+  end if
+end
+
+on dropDamageDiscs me, player
+  counter = 0
+  repeat while pDamageDiscsH[player].count > 0
+    ranAmount = pLastSprite - pFirstSprite - 1
+    chooseDisc = random(ranAmount) + pFirstSprite
+    usedDisc = pActiveDiscs[1].getPos(chooseDisc) + pActiveDiscs[2].getPos(chooseDisc)
+    if usedDisc = 0 then
+      add(pActiveDiscs[player], chooseDisc)
+      sprite(chooseDisc).loc = duplicate(pEntryLocation[player])
+      sprite(chooseDisc).locH = pDamageDiscsH[player][1]
+      sprite(chooseDisc).locV = sprite(chooseDisc).locV - (pDiscHeight * counter)
+      sprite(chooseDisc).member = pDamageDiscsC[player][1]
+      pDamageDiscsH[player].deleteAt(1)
+      pDamageDiscsC[player].deleteAt(1)
+      counter = counter + 1
+    end if
+  end repeat
+  if (pDamageDiscsH[player].count = 0) and (player = 1) then
+    pDamageDiscNum[2] = 0
+    sprite(4).member = "HudPanel2_UL_VS"
+    sprite(15).loc = point(0, -100)
+    repeat with i = 40 to 44
+      sprite(i).visible = 1
+    end repeat
+    sprite(471).visible = 1
+    sprite(58).visible = 1
+    sprite(477).loc = point(-100, -100)
+  else
+    pDamageDiscNum[1] = 0
+    sprite(3).member = "HudPanel1_UL_VS"
+    sprite(14).loc = point(0, -100)
+    repeat with i = 45 to 49
+      sprite(i).visible = 1
+    end repeat
+    sprite(472).visible = 1
+    sprite(57).visible = 1
+    sprite(476).loc = point(-100, -100)
+  end if
+end
+
+on damageDiscTime me, player
+  repeat with disc in pActiveDiscs[player]
+    case sprite(disc).member.name of
+      "redDam0":
+        pos = pActiveDiscs[player].getPos(disc)
+        newDisc = rD2("r")
+        pActiveDiscs[player][pos] = newDisc
+        sprite(newDisc).loc = sprite(disc).loc
+        sprite(disc).locV = -100
+        sprite(disc).member = "redDam2"
+      "greenDam0":
+        pos = pActiveDiscs[player].getPos(disc)
+        newDisc = rD2("g")
+        pActiveDiscs[player][pos] = newDisc
+        sprite(newDisc).loc = sprite(disc).loc
+        sprite(disc).locV = -100
+        sprite(disc).member = "greenDam2"
+      "blueDam0":
+        pos = pActiveDiscs[player].getPos(disc)
+        newDisc = rD2("b")
+        pActiveDiscs[player][pos] = newDisc
+        sprite(newDisc).loc = sprite(disc).loc
+        sprite(disc).locV = -100
+        sprite(disc).member = "blueDam2"
+      "yellowDam0":
+        pos = pActiveDiscs[player].getPos(disc)
+        newDisc = rD2("y")
+        pActiveDiscs[player][pos] = newDisc
+        sprite(newDisc).loc = sprite(disc).loc
+        sprite(disc).locV = -100
+        sprite(disc).member = "yellowDam2"
+      "purpleDam0":
+        pos = pActiveDiscs[player].getPos(disc)
+        newDisc = rD2("p")
+        pActiveDiscs[player][pos] = newDisc
+        sprite(newDisc).loc = sprite(disc).loc
+        sprite(disc).locV = -100
+        sprite(disc).member = "purpleDam2"
+      "orangeDam0":
+        pos = pActiveDiscs[player].getPos(disc)
+        newDisc = rD2("o")
+        pActiveDiscs[player][pos] = newDisc
+        sprite(newDisc).loc = sprite(disc).loc
+        sprite(disc).locV = -100
+        sprite(disc).member = "orangeDam2"
+      "coalDam0":
+        pos = pActiveDiscs[player].getPos(disc)
+        newDisc = rD2("c")
+        pActiveDiscs[player][pos] = newDisc
+        sprite(newDisc).loc = sprite(disc).loc
+        sprite(disc).locV = -100
+        sprite(disc).member = "coalDam2"
+    end case
+    case sprite(disc).member.name of
+      "redDam1":
+        sprite(disc).member = "redDam0"
+      "greenDam1":
+        sprite(disc).member = "greenDam0"
+      "blueDam1":
+        sprite(disc).member = "blueDam0"
+      "yellowDam1":
+        sprite(disc).member = "yellowDam0"
+      "purpleDam1":
+        sprite(disc).member = "purpleDam0"
+      "orangeDam1":
+        sprite(disc).member = "orangeDam0"
+      "coalDam1":
+        sprite(disc).member = "coalDam0"
+    end case
+    case sprite(disc).member.name of
+      "redDam2":
+        sprite(disc).member = "redDam1"
+      "greenDam2":
+        sprite(disc).member = "greenDam1"
+      "blueDam2":
+        sprite(disc).member = "blueDam1"
+      "yellowDam2":
+        sprite(disc).member = "yellowDam1"
+      "purpleDam2":
+        sprite(disc).member = "purpleDam1"
+      "orangeDam2":
+        sprite(disc).member = "orangeDam1"
+      "coalDam2":
+        sprite(disc).member = "coalDam1"
+    end case
+  end repeat
+end
+
+on rD2 colour
+  found = 0
+  repeat while found = 0
+    aDisc = random(300) + pFirstSprite - 1
+    case colour of
+      "r":
+        ranColourName = "red"
+      "g":
+        ranColourName = "green"
+      "b":
+        ranColourName = "blue"
+      "y":
+        ranColourName = "yellow"
+      "p":
+        ranColourName = "purple"
+      "o":
+        ranColourName = "orange"
+      "c":
+        ranColourName = "coal"
+    end case
+    inTheList = pActiveDiscs[1].getPos(aDisc) + pActiveDiscs[2].getPos(aDisc)
+    if inTheList = 0 then
+      sprite(aDisc).member = ranColourName
+      found = 1
+    end if
+  end repeat
+  return aDisc
+end
+
+on removeDiscs me, player
+  if voidp(pRemoveList) = 1 then
+    exit
+  end if
+  repeat with a = 1 to pRemoveList[player].count
+    sprite(360 + a).locV = -100
+    sprite(380 + a).locV = -100
+    sprite(400 + a).locV = -100
+  end repeat
+  repeat with a = 1 to pRemoveList[player].count
+    if sprite(pRemoveList[player][a]).member.name = "bbdisc" then
+      playSound(0, "gotBBdisc.wav")
+      gBBmeter[player] = gBBmeter[player] + 1
+      gScore[player] = gScore[player] + 250
+      showScore(me, player)
+      put "me"
+    end if
+    deleteOne(pActiveDiscs[player], pRemoveList[player][a])
+    sprite(pRemoveList[player][a]).locV = -100
+  end repeat
+  pRemoveList[player] = []
+end
+
+on fireLaser me, beamLoc, player
+  if player = 1 then
+    firePoint = point(80 - 80, 33 - 33)
+    warpedo = sprite(721)
+    sprite(721).loc = beamLoc
+    sendSprite(warpedo, #mFire, firePoint)
+  else
+    firePoint = point(745 + 55, 33 - 33)
+    warpedo = sprite(722)
+    sprite(722).loc = beamLoc
+    sendSprite(warpedo, #mFire, firePoint)
+  end if
+end
+
+on checkIllegalDiscs me
+  illegalDiscs = []
+  missingDiscs = []
+  overlapDiscs = []
+  repeat with i = pFirstSprite to pLastSprite
+    if (sprite(i).locV > 0) and (pActiveDiscs[1].getOne(i) = 0) and (pActiveDiscs[2].getOne(i) = 0) then
+      illegalDiscs.add(i)
+    end if
+    if (sprite(i).locV < 0) and ((pActiveDiscs[1].getOne(i) <> 0) or (pActiveDiscs[2].getOne(i) <> 0)) then
+      missingDiscs.add(i)
+    end if
+  end repeat
+  repeat with i in pActiveDiscs[1]
+    repeat with j in pActiveDiscs[1]
+      if (sprite(i).loc = sprite(j).loc) and (i <> j) then
+        put "i " & i & "j " & j
+        overlapDiscs.add(i)
+      end if
+    end repeat
+  end repeat
+  if g2Play = 1 then
+    repeat with i in pActiveDiscs[2]
+      repeat with j in pActiveDiscs[2]
+        if (sprite(i).loc = sprite(j).loc) and (i <> j) then
+          overlapDiscs.add(i)
+        end if
+      end repeat
+    end repeat
+  end if
+  if illegalDiscs.count > 0 then
+    playSound(0, "error.wav")
+    put "Illegal Discs: " & illegalDiscs
+  else
+  end if
+  if missingDiscs.count > 0 then
+    playSound(0, "error.wav")
+    put "Missing Discs: " & missingDiscs
+  else
+  end if
+  if overlapDiscs.count > 0 then
+    playSound(0, "error.wav")
+    put "Overlap Discs: " & overlapDiscs
+  else
+  end if
+end

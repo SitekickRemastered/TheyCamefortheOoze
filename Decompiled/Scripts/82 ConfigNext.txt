@@ -1,0 +1,3 @@
+on mouseEnter
+  set the member of sprite the currentSpriteNum to member("ConfigNextOver")
+end

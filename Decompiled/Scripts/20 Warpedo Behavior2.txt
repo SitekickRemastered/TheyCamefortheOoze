@@ -1,0 +1,49 @@
+property fFiring, fScaling, pStartLoc, pDestLoc, pVector, spriteNum, kScaleFactor, kSizeScalar, kW, kH, kRadsToDegs, iCtr
+
+on beginSprite me
+  fFiring = 0
+  pStartLoc = point(-140, 636)
+  kW = sprite(spriteNum).width
+  kH = sprite(spriteNum).height
+  kScaleFactor = 2
+  kSizeScalar = (100 - (100 / kScaleFactor)) / 100.0
+  kRadsToDegs = 180 / PI
+end
+
+on exitFrame me
+  if fFiring then
+    iCtr = iCtr + 1
+    if iCtr = 3 then
+      fScaling = 1
+    end if
+    if iCtr > kScaleFactor then
+      mReset(me)
+    else
+      if fScaling then
+      end if
+      sprite(spriteNum).loc = sprite(spriteNum).loc + pVector
+    end if
+  end if
+end
+
+on mFire me, destLoc
+  fScaling = 0
+  pDestLoc = destLoc
+  pVector = (pDestLoc - pStartLoc) / kScaleFactor
+  a = float(destLoc[1] - pStartLoc[1])
+  b = float(destLoc[2] - pStartLoc[2])
+  angle = atan(b / a) * kRadsToDegs
+  sprite(spriteNum).rotation = angle
+  iCtr = 0
+  fFiring = 1
+  sprite(spriteNum).ink = 37
+end
+
+on mReset me
+  sprite(spriteNum).loc = point(-140, 636)
+  sprite(spriteNum).ink = 0
+  sprite(spriteNum).width = kW
+  sprite(spriteNum).height = kH
+  sprite(spriteNum).rotation = 0
+  fFiring = 0
+end

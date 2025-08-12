@@ -1,0 +1,18 @@
+global gState, gBonusRound
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("pauseButNorm1")
+end
+
+on mouseUp
+  if (gBonusRound = 0) or ((gBonusRound <> 0) and (sprite(750).locV > 600)) then
+    sound(7).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+    if gState = 0 then
+      gState = 1
+    else
+      gState = 0
+    end if
+    sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+  end if
+  set the member of sprite the currentSpriteNum to member("resumeButOver1")
+end

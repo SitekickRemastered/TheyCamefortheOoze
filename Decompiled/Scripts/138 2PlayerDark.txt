@@ -1,0 +1,12 @@
+global g2Play
+
+on mouseLeave
+end
+
+on mouseUp
+  g2Play = 1
+  repeat with a = 30 to 42
+    sprite(a).visible = 1
+  end repeat
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+end

@@ -1,0 +1,10 @@
+global gHState
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("hiscoresButton2P_Up")
+end
+
+on mouseUp
+  gHState = 30
+  set the member of sprite the currentSpriteNum to member("hiscoresButton1P_Over")
+end

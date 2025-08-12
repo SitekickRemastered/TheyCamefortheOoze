@@ -1,0 +1,8 @@
+property spriteNum
+
+on hyperlinkClicked me, data, range
+  if data starts "http://" then
+    baOpenURL(data, "maximised")
+  end if
+  currentMember = sprite(spriteNum).member
+end

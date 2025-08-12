@@ -1,0 +1,15 @@
+global gRank
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("img_player1Skill2Button_Up")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+  gRank[1] = 2
+  sprite(75).member = "img_player1Skill1Button_Up"
+  sprite(76).member = "img_player1Skill2Button_Up"
+  sprite(77).member = "img_player1Skill3Button_Up"
+  sprite(78).member = "img_player1Skill4Button_Up"
+  sprite(79).member = "img_player1Skill5Button_Up"
+end

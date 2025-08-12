@@ -1,0 +1,12 @@
+global g2Play
+
+on enterFrame
+end
+
+on mouseUp
+  a = point(0, -200)
+  set the loc of sprite the currentSpriteNum to a
+  g2Play = 1
+  sprite(68).loc = point(137, 13)
+  sprite(11).loc = point(-270, 300)
+end

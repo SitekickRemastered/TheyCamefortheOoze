@@ -1,0 +1,16 @@
+global gBladeBase, gBladeBaseName, gARingNames, gARingCombo, gARingMulti, gARingChain, gWDiscNames, gWDiscStats, gSGearNames, gSGearStats, gBBaseNames, gBBaseStats
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigBladeBase2pUp")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+  gBladeBase[2] = gBladeBase[2] - 1
+  if gBladeBase[2] = 0 then
+    gBladeBase[2] = 2
+  end if
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  gBladeBaseName[2] = gBBaseNames[gBladeBase[2]]
+  member("PressPlay2").text = gBladeBaseName[2]
+end

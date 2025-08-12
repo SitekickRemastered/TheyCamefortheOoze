@@ -1,0 +1,7 @@
+global gCodeMgr
+
+on startMovie
+  gCodeMgr = VOID
+  gCodeMgr = script("gCodeMgr-script").new()
+  gCodeMgr.resetfields()
+end

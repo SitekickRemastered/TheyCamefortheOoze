@@ -1,0 +1,14 @@
+global gTutorial
+
+on mouseUp me
+  if member("tutorialCheckbox").hilite = 1 then
+    put "TUTORIAL TRUE"
+    gTutorial = 1
+  end if
+  if member("tutorialCheckbox").hilite = 0 then
+    put "TUTORIAL FALSE"
+    gTutorial = 0
+  end if
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  baWriteIni("system", "tutorialOn", string(gTutorial), iniLoc)
+end

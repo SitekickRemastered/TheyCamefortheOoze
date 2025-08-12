@@ -1,0 +1,7 @@
+global g2Play
+
+on enterFrame
+end
+
+on mouseUp
+end

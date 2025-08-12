@@ -1,0 +1,7 @@
+global gRank
+
+on mouseEnter
+  pEntered = 1
+  sound(7).playFile(_movie.path & "sound\" & "buttonover2.wav")
+  set the member of sprite the currentSpriteNum to member("img_player1Skill2Button_Over")
+end

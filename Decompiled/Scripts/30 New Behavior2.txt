@@ -1,0 +1,5 @@
+global gCodeMgr
+
+on mouseUp me
+  gCodeMgr.resetfields()
+end

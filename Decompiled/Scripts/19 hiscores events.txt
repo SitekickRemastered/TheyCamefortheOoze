@@ -1,0 +1,479 @@
+property pNames1p, pScores1p, pLevels1p, pNamesVS, pScoresVS, pLevelsVS, pNewScoreLocation, pTimeStart, pLocalGlobal, pTimeStamp
+global g2Play, g2PlayWinner, gHState, gLastScore1p, gLastLevel1p, gLastScoreVS, gLastLevelVS, g2Pmatch, gRank, gHighScoreXML, gRetrieveHighScoreMgr, gSumbitScore, gSubmitHighScoreMgr, gNames1pGlobal, gScores1pGlobal, gLevels1pGlobal, gTestMode, gSubmitTimeStamp, gLevel, gNetConnection, gXMLisDone
+
+on beginSprite me
+  gXMLisDone = 0
+  CR = numToChar(13)
+  member("youSetScore").fontSize = 36
+  member("youSetScore").text = "YOU HAVE SET A HIGH SCORE!" & CR & "Please enter your name."
+  gNetConnection = 0
+  gSubmitTimeStamp = 0
+  pTimeStart = _system.milliSeconds
+  repeat with i = 8 to 15
+    sprite(i).visible = 0
+  end repeat
+  gHState = 0
+  loadStats(me, 1)
+  loadStats(me, 2)
+  loadStats(me, 3)
+  member("netConnect").text = "Connecting to Galactic Wide Hiscore list..."
+  sprite(31).loc = point(245, 215)
+  saveStats(me, 1)
+  saveStats(me, 2)
+  g2Pmatch = [0, 0]
+  pLocalGlobal = 0
+  member("HSnameInput").text = EMPTY
+end
+
+on loadStats me, gameType
+  case gameType of
+    1:
+      pNames1p = []
+      pScores1p = []
+      pLevels1p = []
+      tag = "1p"
+    2:
+      pNamesVS = []
+      pScoresVS = []
+      pLevelsVS = []
+      tag = "VS"
+    3:
+      gRetrieveHighScoreMgr.RetrieveHighScores()
+      if voidp(gNames1pGlobal) = 1 then
+        member("netConnect").text = "“Unable to connect to Galactic list. Please try again.”"
+        gNetConnection = 0
+        sprite(31).loc = point(245, 215)
+        return 0
+      else
+        gNetConnection = 1
+        return 1
+      end if
+  end case
+  if gameType <= 2 then
+    repeat with statFile = 1 to 3
+      tempStats = []
+      case statFile of
+        1:
+          statFileName = "hs-names"
+        2:
+          statFileName = "hs-scores"
+        3:
+          statFileName = "hs-levels"
+      end case
+      newFio = new(xtra("FileIO"))
+      newFio.openfile(the moviePath & "data\" & statFileName & tag & "-en.txt", 0)
+      repeat with i = 1 to 10
+        tempStats[i] = newFio.readToken(".", ".")
+      end repeat
+      if gameType = 1 then
+        case statFile of
+          1:
+            pNames1p = tempStats.duplicate()
+          2:
+            pScores1p = tempStats.duplicate()
+          3:
+            pLevels1p = tempStats.duplicate()
+        end case
+      else
+        case statFile of
+          1:
+            pNamesVS = tempStats.duplicate()
+          2:
+            pScoresVS = tempStats.duplicate()
+          3:
+            pLevelsVS = tempStats.duplicate()
+        end case
+      end if
+      newFio.closeFile()
+      newFio = 0
+    end repeat
+  end if
+end
+
+on displayStats me, gameType
+  CRLF = numToChar(13) & numToChar(10)
+  CR = numToChar(13)
+  member("hiscoresNames").text = EMPTY
+  member("hiscoresScores").text = EMPTY
+  member("hiscoresLevels").text = EMPTY
+  case gameType of
+    1:
+      sprite(6).member = "hiscoresSubtitle1P"
+      repeat with i = 1 to 10
+        member("hiscoresNames").text = member("hiscoresNames").text & pNames1p[i] & CR
+      end repeat
+      repeat with i = 1 to 10
+        member("hiscoresScores").text = member("hiscoresScores").text & pScores1p[i] & CR
+      end repeat
+      repeat with i = 1 to 10
+        member("hiscoresLevels").text = member("hiscoresLevels").text & pLevels1p[i] & CR
+      end repeat
+      sprite(31).loc = point(0, -100)
+    2:
+      sprite(6).member = "hiscoresSubtitleVS"
+      repeat with i = 1 to 10
+        member("hiscoresNames").text = member("hiscoresNames").text & pNamesVS[i] & CR
+      end repeat
+      repeat with i = 1 to 10
+        member("hiscoresScores").text = member("hiscoresScores").text & pScoresVS[i] & CR
+      end repeat
+      repeat with i = 1 to 10
+        member("hiscoresLevels").text = member("hiscoresLevels").text & pLevelsVS[i] & CR
+      end repeat
+      sprite(31).loc = point(0, -100)
+    3:
+      sprite(6).member = "hiscoresSubtitleGlobal"
+      repeat with i = 1 to 10
+        member("hiscoresNames").text = member("hiscoresNames").text & gNames1pGlobal[i] & CR
+      end repeat
+      repeat with i = 1 to 10
+        member("hiscoresScores").text = member("hiscoresScores").text & gScores1pGlobal[i] & CR
+      end repeat
+      repeat with i = 1 to 10
+        member("hiscoresLevels").text = member("hiscoresLevels").text & gLevels1pGlobal[i] & CR
+      end repeat
+      sprite(31).loc = point(0, -100)
+  end case
+  repeat with i = 8 to 15
+    sprite(i).visible = 1
+  end repeat
+end
+
+on saveStats me, gameType
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  repeat with statFile = 1 to 3
+    iterator = []
+    if gameType = 1 then
+      tag = "1p"
+      case statFile of
+        1:
+          fName = "hs-names" & tag & "-en.txt"
+          iterator = pNames1p.duplicate()
+        2:
+          fName = "hs-scores" & tag & "-en.txt"
+          baWriteIni("saveGames", "1p", string(pScores1p[10]), iniLoc)
+          iterator = pScores1p.duplicate()
+        3:
+          fName = "hs-levels" & tag & "-en.txt"
+          iterator = pLevels1p.duplicate()
+      end case
+    else
+      tag = "VS"
+      case statFile of
+        1:
+          fName = "hs-names" & tag & "-en.txt"
+          iterator = pNamesVS.duplicate()
+        2:
+          fName = "hs-scores" & tag & "-en.txt"
+          baWriteIni("saveGames", "VS", string(pScoresVS[10]), iniLoc)
+          iterator = pScoresVS.duplicate()
+        3:
+          fName = "hs-levels" & tag & "-en.txt"
+          iterator = pLevelsVS.duplicate()
+      end case
+    end if
+    fio = new(xtra("FileIO"))
+    fio.openfile(the moviePath & "data\" & fName, 0)
+    if fio.status() <> 0 then
+      fio.createFile(the moviePath & "data\" & fName)
+      fio.openfile(the moviePath & "data\" & fName, 0)
+    end if
+    CRLF = numToChar(13) & numToChar(10)
+    fileText = "."
+    repeat with i = 1 to 10
+      fileText = fileText & iterator[i] & "."
+    end repeat
+    fio.writeString(fileText)
+    fio.closeFile()
+    fio = 0
+  end repeat
+end
+
+on keyUp me
+  if gTestMode = 1 then
+    case the keyCode of
+      18:
+        g2PlayWinner = 0
+        gHState = 0
+        gLastScore1p = 0
+        gLastLevel1p = 0
+        gLastScoreVS = 0
+        gLastLevelVS = 0
+        gLastScore1p = 777
+        gLastLevel1p = 77
+      19:
+        loadStats(me, 1)
+        displayStats(me, 1)
+      20:
+        g2PlayWinner = 0
+        gHState = 0
+        gLastScore1p = 0
+        gLastLevel1p = 0
+        gLastScoreVS = 0
+        gLastLevelVS = 0
+        gLastScoreVS = 988
+        gLastLevelVS = 88
+        g2PlayWinner = 2
+      21:
+      23:
+    end case
+  end if
+  if (the keyCode = 36) or (the keyCode = 76) then
+    len = member("HSnameInput").text.length
+    tempText = member("HSnameInput").text
+    repeat with i = 1 to len
+      search = charToNum(tempText.char[i])
+      enterLoc = i
+      put "me"
+      if (search = 3) or (search = 13) then
+        exit repeat
+      end if
+    end repeat
+    seg1 = chars(tempText, 1, enterLoc - 1)
+    seg2 = chars(tempText, enterLoc + 1, len)
+    member("HSnameInput").text = seg1 & seg2
+    if (sprite(18).locV > 0) and (sprite(18).locV < 600) then
+      if checkString(me) = 1 then
+        if gHState = 1 then
+          if member("HSnameInput").text.length < 2 then
+            member("HSnameInput").text = "SiteKick"
+          end if
+          sprite(35).loc = point(100, 430)
+          sprite(18).loc = point(0, -100)
+          sprite(19).loc = point(0, -100)
+          gSubmitHighScoreMgr.SubmitScore()
+        end if
+        if gHState = 8 then
+          if member("HSnameInput").text.length < 2 then
+            member("HSnameInput").text = "SiteKick"
+          end if
+          gHState = 9
+        end if
+        sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+      else
+        CR = numToChar(13)
+        member("youSetScore").text = "Oops! Only letters and numbers please."
+        sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+      end if
+    end if
+  end if
+end
+
+on checkString me
+  len = member("HSnameInput").text.length
+  tempText = member("HSnameInput").text
+  repeat with i = 1 to len
+    search = charToNum(tempText.char[i])
+    if ((search >= 48) and (search <= 57)) or ((search >= 65) and (search <= 90)) or ((search >= 97) and (search <= 122)) or (search = 32) or (search = 95) then
+      next repeat
+    end if
+    return 0
+  end repeat
+  return 1
+end
+
+on exitFrame me
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  if (gHState = 0) and (gLastScore1p > value(baReadIni("saveGames", "1p", "Error", iniLoc))) then
+    sprite(6).member = "hiscoresSubtitle1P"
+    sprite(20).loc = point(0, 800)
+    sprite(16).loc = point(100, 200)
+    sprite(16).visible = 1
+    sprite(17).loc = point(280, 300)
+    sprite(17).editable = 1
+    sprite(18).loc = point(500, 390)
+    sprite(19).loc = point(300, 390)
+    sprite(31).loc = point(0, -100)
+    _movie.keyboardFocusSprite = 17
+    gHState = 1
+    pTimeStart = -1
+  end if
+  if member("HSnameInput").text.length > 8 then
+    member("HSnameInput").text = chars(member("HSnameInput").text, 1, 8)
+  end if
+  if gHState = 2 then
+    sprite(16).loc = point(100, -200)
+    sprite(17).loc = point(280, -200)
+    sprite(17).editable = 0
+    sprite(18).loc = point(400, -200)
+    sprite(19).loc = point(500, -200)
+    sprite(35).loc = point(0, -100)
+    pNewScoreLocation = 10
+    repeat while gLastScore1p > pScores1p[pNewScoreLocation]
+      pNewScoreLocation = pNewScoreLocation - 1
+      if pNewScoreLocation = 0 then
+        exit repeat
+      end if
+    end repeat
+    pNewScoreLocation = pNewScoreLocation + 1
+    pNames1p.addAt(pNewScoreLocation, member("HSnameInput").text)
+    pScores1p.addAt(pNewScoreLocation, gLastScore1p)
+    pLevels1p.addAt(pNewScoreLocation, gLastLevel1p)
+    gLastScore1p = 0
+    saveStats(me, 1)
+    displayStats(me, 1)
+    gHState = 0
+  end if
+  if (gHState = 0) and (g2PlayWinner > 0) then
+    sprite(6).member = "hiscoresSubtitleVS"
+    CRLF = numToChar(13) & numToChar(10)
+    CR = numToChar(13)
+    if g2PlayWinner = 1 then
+      opzPlayer = 2
+    else
+      opzPlayer = 1
+    end if
+    line1 = "Player " & g2PlayWinner & ", do you wish to grant Player " & opzPlayer & " a rematch?"
+    line2 = "If you lose, you can't enter a high score."
+    line3 = "If you win, your points will accumulate."
+    member("hiscoreText").text = line1 & CR & line2 & CR & line3
+    sprite(20).loc = point(70, 190 + 30)
+    gHState = 5
+    sprite(7).member = "hiscoresButtonRematch_Up"
+    sprite(7).loc = point(400, 300)
+    sprite(33).member = "hiscoresButtonQuit_Up"
+    sprite(33).loc = point(400, 300)
+    sprite(31).loc = point(0, -100)
+    pTimeStart = -1
+  end if
+  if gHState = 6 then
+    sprite(20).loc = point(0, 800)
+    if g2PlayWinner = 1 then
+      g2PlayWinner = -1
+    else
+      g2PlayWinner = -2
+    end if
+    gLevel = gLastLevelVS
+    go("Play2p")
+    gHState = 0
+  end if
+  if (gHState = 7) and (gLastScoreVS > value(baReadIni("saveGames", "VS", "Error", iniLoc))) then
+    sprite(20).loc = point(0, 800)
+    sprite(16).loc = point(100, 200)
+    sprite(16).visible = 1
+    sprite(17).loc = point(280, 300)
+    sprite(17).editable = 1
+    sprite(18).loc = point(500, 390)
+    sprite(19).loc = point(300, 390)
+    gHState = 8
+    _movie.keyboardFocusSprite = 17
+    sprite(7).member = "hiscoresButtonMain_Up"
+    sprite(7).loc = point(494, 300)
+    sprite(33).member = "hiscoresButton1P_Over"
+    sprite(33).loc = point(0, 700)
+  else
+    if (gHState = 7) and (gLastScoreVS <= value(baReadIni("saveGames", "VS", "Error", iniLoc))) then
+      sprite(7).member = "hiscoresButtonMain_Up"
+      sprite(7).loc = point(494, 300)
+      sprite(33).member = "hiscoresButton1P_Over"
+      sprite(33).loc = point(0, 700)
+      sprite(20).loc = point(0, 800)
+      displayStats(me, 2)
+      gHState = 0
+      gLastScoreVS = 0
+      g2PlayWinner = 0
+    end if
+  end if
+  if gHState = 9 then
+    sprite(7).member = "hiscoresButtonMain_Up"
+    sprite(16).loc = point(100, -200)
+    sprite(17).loc = point(280, -200)
+    sprite(17).editable = 0
+    sprite(18).loc = point(400, -200)
+    sprite(19).loc = point(500, -200)
+    pNewScoreLocation = 10
+    repeat while gLastScoreVS > pScoresVS[pNewScoreLocation]
+      pNewScoreLocation = pNewScoreLocation - 1
+      if pNewScoreLocation = 0 then
+        exit repeat
+      end if
+    end repeat
+    pNewScoreLocation = pNewScoreLocation + 1
+    pNamesVS.addAt(pNewScoreLocation, member("HSnameInput").text)
+    pScoresVS.addAt(pNewScoreLocation, gLastScoreVS)
+    pLevelsVS.addAt(pNewScoreLocation, gLastLevelVS)
+    gLastScoreVS = 0
+    g2PlayWinner = 0
+    saveStats(me, 2)
+    displayStats(me, 2)
+    gHState = 0
+  end if
+  if gHState = 20 then
+    displayStats(me, 1)
+    gHState = 0
+  end if
+  if gHState = 25 then
+    loadOK = loadStats(me, 3)
+    if loadOK = 1 then
+      sprite(6).member = "hiscoresSubtitleGlobal"
+      displayStats(me, 3)
+    end if
+    gHState = 0
+  end if
+  if gHState = 30 then
+    displayStats(me, 2)
+    gHState = 0
+  end if
+  if (_system.milliSeconds > (pTimeStart + 1000)) and (gHState = 0) and (pTimeStart <> -1) then
+    if g2Play = 0 then
+      displayStats(me, 1)
+    else
+      displayStats(me, 2)
+    end if
+    pTimeStart = -1
+  end if
+  case sprite(6).member.name of
+    "hiscoresSubtitle1P":
+      sprite(22).member = "hiscoresSingleplay_On"
+      sprite(23).member = "hiscoresVersusplay_Off"
+    "hiscoresSubtitleVS":
+      sprite(22).member = "hiscoresSingleplay_Off"
+      sprite(23).member = "hiscoresVersusplay_On"
+    "hiscoresSubtitleGlobal":
+      sprite(22).member = "hiscoresSingleplay_On"
+      sprite(23).member = "hiscoresVersusplay_Off"
+  end case
+  if g2PlayWinner = 0 then
+    case gHighScoreXML = VOID of
+      0:
+        case netDone(gHighScoreXML) of
+          1:
+            if (netError(gHighScoreXML) = "ok") and (gXMLisDone = 0) then
+              gRetrieveHighScoreMgr.DisplayHighScoreXML(netTextResult())
+              gHighScoreXML = VOID
+              gRetrieveHighScoreMgr.parseHighScoreXML()
+              gXMLisDone = 1
+            end if
+        end case
+    end case
+  end if
+  case gSumbitScore = VOID of
+    0:
+      case netDone(gSumbitScore) of
+        1:
+          lvar = netTextResult()
+          trace(lvar)
+          case lvar of
+            "message=success":
+              gRetrieveHighScoreMgr.RetrieveHighScores()
+              if (gHState = 1) and (gSubmitTimeStamp > 0) then
+                gSubmitTimeStamp = 0
+                gHState = 2
+                gXMLisDone = 0
+              end if
+            otherwise:
+              if (gHState = 1) and (gSubmitTimeStamp > 0) then
+                gSubmitTimeStamp = 0
+                member("youSetScore").fontSize = 24
+                member("youSetScore").text = "To post to the Galactic Hiscores, you must be connected to the internet. Please connect and then click ENTER."
+                sprite(35).loc = point(0, -100)
+                sprite(18).loc = point(500, 390)
+                sprite(19).loc = point(300, 390)
+              end if
+          end case
+          gSumbitScore = VOID
+      end case
+  end case
+  gAdminMusic(me)
+  go(the frame)
+end

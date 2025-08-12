@@ -1,0 +1,15 @@
+global gBonusRound
+
+on mouseEnter
+  if (gBonusRound = 0) or ((gBonusRound <> 0) and (sprite(749).locV > 600)) then
+    set the member of sprite the currentSpriteNum to member("resumeButOver1")
+    sound(7).playFile(_movie.path & "sound\" & "buttonover1.wav")
+  end if
+end
+
+on mouseUp
+  put "GAH " & sprite(749).locV
+  if (gBonusRound <> 0) and (sprite(749).locH < 600) then
+    sound(7).playFile(_movie.path & "sound\" & "warning.wav")
+  end if
+end

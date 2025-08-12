@@ -1,0 +1,13 @@
+global gNewChips
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("newChipsOkButtonUp")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  gNewChips = 0
+  repeat with i = 25 to 35
+    sprite(i).loc = point(0, -300)
+  end repeat
+end

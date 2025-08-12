@@ -1,0 +1,36 @@
+global g2Play, gTutorial, gRank, gAttackRing, gSpinGear, gBladeBase, gPlayer, gWeightDisc
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigBattle")
+end
+
+on mouseUp
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  baWriteIni("player1", "attackRing", string(gAttackRing[1]), iniLoc)
+  baWriteIni("player1", "weightDisc", string(gWeightDisc[1]), iniLoc)
+  baWriteIni("player1", "spinGear", string(gSpinGear[1]), iniLoc)
+  baWriteIni("player1", "bladeBase", string(gBladeBase[1]), iniLoc)
+  baWriteIni("player1", "player", string(gPlayer[1]), iniLoc)
+  baWriteIni("player1", "rank", string(gRank[1]), iniLoc)
+  if g2Play = 1 then
+    baWriteIni("player2", "attackRing", string(gAttackRing[2]), iniLoc)
+    baWriteIni("player2", "weightDisc", string(gWeightDisc[2]), iniLoc)
+    baWriteIni("player2", "spinGear", string(gSpinGear[2]), iniLoc)
+    baWriteIni("player2", "bladeBase", string(gBladeBase[2]), iniLoc)
+    baWriteIni("player2", "player", string(gPlayer[2]), iniLoc)
+    baWriteIni("player2", "rank", string(gRank[2]), iniLoc)
+  end if
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  repeat with a = 30 to 42
+    sprite(a).visible = 1
+  end repeat
+  if g2Play = 0 then
+    go("Play1p")
+  else
+    if gTutorial = 0 then
+      go("Play2p")
+    else
+      go("Play1p")
+    end if
+  end if
+end

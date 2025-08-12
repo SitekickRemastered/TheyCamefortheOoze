@@ -1,0 +1,144 @@
+property pName, pNameLength, pNumOfSegments, pNameSegmentsList, pConvertedList, pScrubKeyList, pScrubberList, pLevelCode, pChipScrub, pLengthScrub, pGameId
+
+on new me
+  return me
+end
+
+on Encrypt me
+  member("Code").text = EMPTY
+  pGameId = "sk01"
+  pName = member("Name").text
+  pLevelCode = member("Chip").text
+  put "LEVELCODE " & pLevelCode
+  pNameLength = pName.length
+  pNumOfSegments = 3
+  pNameSegmentsList = []
+  pScrubKeyList = []
+  me.CreateScrubList()
+  me.DivideName(pName)
+  me.Scrub()
+  me.CreateString()
+end
+
+on CreateScrubList me
+  pChipScrub = "QRSTUVWXYZ"
+  pLengthScrub = "hijklmnopq"
+  lList01 = "ab!dfegijkhlTMNOPRQSUVW5YZc_A2CDEFGH6JKLmnopqrst8vwxyz01B34XI7u9"
+  lList02 = "TMNOPRgijkhlQSUVWA2CD5YZc_EFGH6JKLopmnqrst8vwxab!dfeyz01B34XI7u9"
+  lList03 = "fxmTXqzDisG3YpJoySeO0L1P2lw6EZd4RuKh8BcIM7W5g9!vUVAtjrC_bnNaFkQH"
+  lList04 = "XOTqrPvisj2tabD7nphY0xz8Z1FRELSduB5lUJc4G9!QgVywCNK3mk_oIHAWeMf6"
+  lList05 = "CHWIT9!ktJVo0rnv2UM5dYcNqXwmiAPKpDyE8jQ4ulOS3Zf6L_RFzbhBaxse71gG"
+  lList06 = "fdhEq6Bw5VI_zjFOGnTRWCxUb9HcKa013iDrpYZeASvgJ28sMl!u47PNQkyoXmtL"
+  lList07 = "G_v24qpdRz8uO0PDxIW1X6QMkfHFsZihTBVtoCle7YA!LcErwNnKJUjS3mb59ayg"
+  lList08 = "X5D!yK1arY3TJHOfVtQvZE0gAIk8z_xp29noPbeiFGd7scNwSCLmqRjhMu46lWUB"
+  lList09 = "RLGtPK3yQWzuONZiF5wvxhX8qfJUm0_1grjIl7d9DVpc!4SHoMBaCTYknb2Aes6E"
+  lList10 = "8dYaflQIO7zAJZCmMWLqN6bGpStX9kjPT0xD5ywr!osUvK_E14HicnuRhe3BFVg2"
+  pScrubberList = [lList01, lList02, lList03, lList04, lList05, lList06, lList07, lList08, lList09, lList10]
+end
+
+on DivideName me, arName
+  lLength = arName.length
+  lvar3 = lLength mod pNumOfSegments
+  case lvar3 > 0 of
+    1:
+      lseglen = (lLength - lvar3) / pNumOfSegments
+      lstring1 = arName.char[1..lseglen]
+      arName = arName.char[lseglen + 1..lLength]
+      lstring2 = arName.char[1..lseglen]
+      arName = arName.char[lseglen + 1..lLength]
+      lstring3 = arName.char[1..arName.length]
+    0:
+      lseglen = lLength / pNumOfSegments
+      lstring1 = arName.char[1..lseglen]
+      lstring2 = arName.char[lseglen + 1..lseglen * 2]
+      lstring3 = arName.char[(lseglen * 2) + 1..lLength]
+  end case
+  pNameSegmentsList = [lstring1, lstring2, lstring3]
+end
+
+on Scrub me
+  pConvertedList = []
+  repeat with i = 1 to pNumOfSegments
+    ltempstring = EMPTY
+    lseg = pNameSegmentsList[i]
+    lcount = lseg.length
+    lrandom = random(10)
+    lScrubstring = pScrubberList[lrandom]
+    pScrubKeyList.append(lrandom - 1)
+    repeat with k = 1 to lcount
+      lvar = me.ConvertChartoNum(lseg.char[k])
+      lconvertNum = me.ConverttoScrubNum(lvar)
+      lstring = lScrubstring.char[lconvertNum]
+      ltempstring = ltempstring & lstring
+    end repeat
+    pConvertedList.append(ltempstring)
+  end repeat
+  lfinalseg = pLevelCode & pGameId
+  lcount2 = lfinalseg.length
+  ltempstring = EMPTY
+  lrandom = random(10)
+  lScrubstring = pScrubberList[lrandom]
+  pScrubKeyList.append(lrandom - 1)
+  repeat with j = 1 to lcount2
+    lvar = me.ConvertChartoNum(lfinalseg.char[j])
+    lconvertNum = me.ConverttoScrubNum(lvar)
+    lstring = lScrubstring.char[lconvertNum]
+    ltempstring = ltempstring & lstring
+  end repeat
+  pConvertedList.append(ltempstring)
+end
+
+on CreateString me
+  lstring = EMPTY
+  case pNameLength < 10 of
+    0:
+      lstring2 = string(pNameLength)
+      lval1 = value(lstring2.char[1]) + 1
+      lval2 = value(lstring2.char[2]) + 1
+      lstring = pLengthScrub.char[lval1] & pLengthScrub.char[lval2]
+    1:
+      lstring2 = string(pNameLength)
+      lval2 = value(lstring2.char[1..1])
+      lval2 = lval2 + 1
+      lstring = "h" & pLengthScrub.char[lval2]
+  end case
+  lcount = pScrubKeyList.count
+  repeat with i = 1 to lcount
+    lstring = lstring & string(pScrubKeyList[i])
+  end repeat
+  repeat with i = 1 to pConvertedList.count
+    lstring = lstring & pConvertedList[i]
+  end repeat
+  member("Code").text = lstring
+  ldevstring = "http://dev.ytv.com/common/inc/CDROMfunctions/Encryption.asp?BonusChipCode="
+  member("Dev").text = ldevstring & lstring
+  llivestring = "http://www.ytv.com/common/inc/CDROMfunctions/Encryption.asp?BonusChipCode="
+  member("Live").text = llivestring & lstring
+end
+
+on ConverttoScrubNum me, arnum
+  case 1 of
+    ((arnum > 47) and (arnum < 58)):
+      lvar = arnum - 47
+    ((arnum > 64) and (arnum < 91)):
+      lvar = arnum - 64 + 38
+    ((arnum > 96) and (arnum < 123)):
+      lvar = arnum - 96 + 10
+    (arnum = 33):
+      lvar = 37
+    (arnum = 95):
+      lvar = 38
+  end case
+  return lvar
+end
+
+on ConvertChartoNum me, arChar
+  return charToNum(arChar)
+end
+
+on resetfields me
+  member("Dev").text = EMPTY
+  member("Live").text = EMPTY
+  member("Name").text = EMPTY
+  member("Chip").text = EMPTY
+end

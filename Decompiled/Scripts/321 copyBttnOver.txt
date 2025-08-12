@@ -1,0 +1,8 @@
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("copyBttnUp")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+  Ok = baCopyText(member("Code").text)
+end

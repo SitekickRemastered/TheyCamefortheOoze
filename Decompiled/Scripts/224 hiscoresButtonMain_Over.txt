@@ -1,0 +1,7 @@
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("hiscoresButtonMain_Up")
+end
+
+on mouseUp
+  go("Home")
+end

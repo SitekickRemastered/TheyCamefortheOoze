@@ -1,0 +1,48 @@
+global gState, gTutorial, gNextEvent, gCodeMgr
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("tutNextButNorm3")
+end
+
+on mouseUp me
+  CRLF = numToChar(13) & numToChar(10)
+  CR = numToChar(13)
+  text1 = member("Name").text
+  if (text1 = "Enter_YTV_username") or (text1.length < 5) or (text1.length > 20) then
+    sound(7).playFile(_movie.path & "sound\" & "warning.wav")
+    l1 = "Congratulations!"
+    l2 = "You've earned yourself a SiteKick™ Chip for your YTV.com SiteKick™! "
+    l3 = "Enter your SiteKick™ Username below to get your CHIP CODE, or if you don't have a SiteKick™ Username yet, go to:"
+    l4 = " "
+    l5 = "...then come back here and enter your new username."
+    l6 = "Enter a YTV username, between 5 and 20 letters, no spaces. Double check before clicking NEXT...if you enter the wrong name, the code won’t work! "
+    member("tutorialTitle").text = l1
+    member("tutorialText").text = l2 & l3 & CR & l4 & CR & l5 & CRLF & l6
+    member("Name").text = EMPTY
+  else
+    gCodeMgr.Encrypt()
+    sound(8).playFile(_movie.path & "sound\" & "buttonclicked1.wav")
+    sprite(_player.currentSpriteNum).member = "tutNextButOver2"
+    sound(4).playFile(_movie.path & "sound\" & "pause.wav")
+    line1 = "Your top secret CHIP CODE is below. Go to:"
+    line1a = " "
+    line2 = "...and enter this code:"
+    line3 = "...in the 'secret code' box at the bottom of the 'chip dock'."
+    line4 = " When you do, you'll be awarded a surprise SiteKick™ Chip!"
+    line5 = " If you're not a member of YTV.com, don't worry..."
+    line6 = "you'll be given a chance to sign up... it's FREE."
+    line7 = "Your top secret code is below. It is CASE-SENSITIVE, so copy it down exactly (and don’t confuse #1 with lowercase ‘L’, zero with capital ‘O’, or ‘v’ with ‘u’. This code is YOURS, and yours alone. It only will work with the username you entered. Finally, you can only use it once…so think twice before trading your chips!"
+    line7a = " "
+    line8 = "Go to... "
+    line9 = "...and enter your code into the 'secret code' box."
+    member("tutorialText").text = line7 & CR & line7a & CR & CRLF & line8 & CRLF & line9
+    sprite(767).loc = point(400, 300 + 20 - 7)
+    sprite(762).loc = point(180 - 50, 255 + 37 - 29)
+    sprite(760).loc = point(-100, -100)
+    sprite(768).loc = point(0, -100)
+    sprite(769).width = 650
+    sprite(769).loc = point(75, 170 + 182)
+    sprite(761).loc = point(395, 425)
+    sprite(763).loc = point(0, -100)
+  end if
+end

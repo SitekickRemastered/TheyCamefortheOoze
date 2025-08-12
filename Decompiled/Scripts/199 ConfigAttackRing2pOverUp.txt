@@ -1,0 +1,16 @@
+global gAttackRing, gAttackRingName, gARingNames, gARingCombo, gARingMulti, gARingChain, gWDiscNames, gWDiscStats, gSGearNames, gSGearStats, gBBaseNames, gBBaseStats
+
+on mouseLeave
+  set the member of sprite the currentSpriteNum to member("ConfigAttackRing2pUp")
+end
+
+on mouseUp
+  sound(8).playFile(_movie.path & "sound\" & "buttonclicked2.wav")
+  gAttackRing[2] = gAttackRing[2] - 1
+  if gAttackRing[2] = 0 then
+    gAttackRing[2] = 3
+  end if
+  iniLoc = the moviePath & "data\" & "sitekick.ini"
+  gAttackRingName[2] = gARingNames[gAttackRing[2]]
+  member("PressPlay2").text = gAttackRingName[2]
+end
