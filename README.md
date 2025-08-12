@@ -13,7 +13,7 @@ This isn't connected to Sitekick Remastered in any way, **and it does not distri
 
 With that in mind, please note:
 - You can NOT claim chips.
-- Galactic hiscore are not functional.  Do not try to use them.
+- Galactic hiscores are not functional.  Do not try to use them.
 - Runs in a small window.
 - Use this program at your own risk.  We're relying on extremely old code.
 
