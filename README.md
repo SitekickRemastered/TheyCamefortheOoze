@@ -1,5 +1,5 @@
 # Sitekick: They Came for the Ooze
-![Box Art](https://raw.githubusercontent.com/SitekickRemastered/TheyCamefortheOoze/refs/heads/main/README/game_logo.png)
+![Box Art](https://cdn.sitekickremastered.com/images/games/tcfto/game_logo.png)
 
 # Download
 You can download Sitekick: They Came for the Ooze for Windows [here](https://github.com/SitekickRemastered/TheyCamefortheOoze/releases/).  Simply download  and run the latest installer, then launch the game.
@@ -26,6 +26,11 @@ See below for the original game's readme file.  It goes into great detail of eve
 
 The laboratory of Dr. Frantic harbors a dark secret. Inside its walls bubbles a vat of Mysterious Alien Ooze. To each little robot the scientist creates, a drop of Ooze is added to form the electric Sitekick(TM) core. But today, a massive shadow looms over YAP! Industries. It’s the shadow of a cold, steely spacecraft filled with angry aliens bent on taking back what was once theirs. They came for justice. They came for revenge. They came for the OOZE!!
 
+## SCREENSHOTS
+![Screenshot1](https://cdn.sitekickremastered.com/images/games/tcfto/game1.png)
+![Screenshot2](https://cdn.sitekickremastered.com/images/games/tcfto/game2.png)
+![Screenshot3](https://cdn.sitekickremastered.com/images/games/tcfto/game3.png)
+![Screenshot4](https://cdn.sitekickremastered.com/images/games/tcfto/game4.png)
 
 ## SYSTEM SPECIFICATIONS
 
